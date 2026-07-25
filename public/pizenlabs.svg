@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="339.88757"
+   height="339.88754"
+   viewBox="0 0 89.928577 89.928569"
+   version="1.1"
+   id="svg1"
+   xml:space="preserve"
+   sodipodi:docname="pizenlabs.svg"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.89353779"
+     inkscape:cx="74.982839"
+     inkscape:cy="207.60174"
+     inkscape:window-width="1920"
+     inkscape:window-height="986"
+     inkscape:window-x="0"
+     inkscape:window-y="30"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <title>PizenLabs</title>
+<defs
+     id="defs1" /><g
+     id="layer1"
+     transform="translate(-974.56592,-390.88332)"><rect
+       style="fill:#1a1a1a;stroke:#d90200;stroke-width:0;paint-order:stroke markers fill"
+       id="rect14"
+       width="89.928589"
+       height="89.928581"
+       x="974.5658"
+       y="390.88358"
+       ry="9.3469687" /><g
+       id="g26-8"
+       transform="matrix(0,0.60975344,-0.60975344,0,1285.2898,-185.81451)"
+       style="fill:#f9f9f9"><circle
+         style="fill:#66ff00;stroke:#d90200;stroke-width:0;paint-order:stroke markers fill"
+         id="path4-0"
+         cx="1001.0451"
+         cy="425.23322"
+         r="7.2502437" /><path
+         id="text14-4"
+         style="font-size:107.943px;line-height:1;font-family:SVN-Kimberley;-inkscape-font-specification:SVN-Kimberley;text-align:center;letter-spacing:0.294389px;text-anchor:middle;fill:#f9f9f9;stroke:#d90200;stroke-width:0;paint-order:stroke markers fill"
+         d="m 1050.4213,362.65611 v 83.43427 h 18.6579 v -20.08114 h 19.2918 4.6898 54.2884 V 408.9323 h -31.2024 l 31.2024,-31.51834 v -14.75785 h -54.6048 -3.4778 z m 57.4498,17.02419 h 13.7575 l -13.7575,13.08171 z m -38.7919,1.63396 h 16.8661 c 2.1434,0 3.2149,1.1593 3.2149,3.47838 v 19.18554 c 0,2.17854 -1.0715,3.26743 -3.2149,3.26743 h -16.8661 z"
+         transform="scale(0.92778595,1.0778348)" /></g></g></svg>

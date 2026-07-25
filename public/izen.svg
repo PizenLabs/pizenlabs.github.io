@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="390.4534"
+   height="390.4534"
+   viewBox="0 0 103.30745 103.30745"
+   version="1.1"
+   id="svg1"
+   xml:space="preserve"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <title>Izen</title>
+<defs
+     id="defs1"><linearGradient
+       id="linearGradient42"><stop
+         style="stop-color:#112b00;stop-opacity:1"
+         offset="0"
+         id="stop42" /><stop
+         style="stop-color:#225500;stop-opacity:1"
+         offset="1"
+         id="stop43" /></linearGradient><linearGradient
+       id="linearGradient33"><stop
+         style="stop-color:#225500;stop-opacity:1"
+         offset="0"
+         id="stop32" /><stop
+         style="stop-color:#ccffaa;stop-opacity:1"
+         offset="1"
+         id="stop33" /></linearGradient><linearGradient
+       xlink:href="#linearGradient33"
+       id="linearGradient41"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.7117359,1.6690701,-1.6690701,1.7117359,-710.48592,-488.5972)"
+       x1="334.75232"
+       y1="-300.47198"
+       x2="341.56342"
+       y2="-246.58055" /><linearGradient
+       xlink:href="#linearGradient42"
+       id="linearGradient43"
+       x1="351.69092"
+       y1="-445.12811"
+       x2="268.31906"
+       y2="-333.48373"
+       gradientUnits="userSpaceOnUse" /></defs><g
+     id="layer1"
+     transform="translate(-256.31676,425.29884)"><rect
+       style="display:inline;fill:url(#linearGradient43);fill-opacity:1;stroke:#d90200;stroke-width:0;paint-order:stroke markers fill"
+       id="rect6"
+       width="103.30746"
+       height="103.30746"
+       x="256.31677"
+       y="-425.29883"
+       ry="12.170846"
+       transform="translate(-1.2539136e-6)" /><g
+       id="g22"><rect
+         style="display:inline;fill:#241c1c;stroke:#d90200;stroke-width:0;paint-order:stroke markers fill"
+         id="rect39"
+         width="53.266403"
+         height="53.266403"
+         x="630.29596"
+         y="149.08522" /><path
+         id="rect5-7-5-5"
+         style="fill:url(#linearGradient41);fill-opacity:1;stroke:#d90200;stroke-width:0;paint-order:stroke markers fill"
+         d="m 335.2662,-411.53301 -12.04934,12.35734 10.01771,9.76801 12.04932,-12.35733 z m -17.05775,7.47376 -11.70779,12.00708 -12.05021,12.35825 -23.79337,24.40159 4.95093,4.82751 23.79336,-24.40158 5.06678,4.94047 -11.70782,12.00709 5.06592,4.93966 -12.08556,12.39449 4.95088,4.82749 12.08557,-12.39451 23.75802,-24.36533 11.70779,-12.00708 -4.95088,-4.82747 -11.70779,12.00707 -3.71697,-3.62431 -1.34896,-1.31533 -5.06678,-4.94049 11.7078,-12.00708 z" /><path
+         style="fill:#225500;stroke:#d90200;stroke-width:0;paint-order:stroke markers fill"
+         d="m 655.76332,149.08522 v -10.63076 l -11.02464,3.87826 2.94367,6.7525 -17.3864,10.50973 1.8e-4,29.76845 6.65509,3.02353 4.24784,-3.02353 -1.8e-4,-31.94336 z"
+         id="path14" /><path
+         style="fill:#225500;stroke:#d90200;stroke-width:0;paint-order:stroke markers fill"
+         d="m 658.67374,138.10313 10.43748,3.86553 -2.97656,7.11656 17.4277,10.50973 v 29.76845 l -4.06042,2.54087 -7.16162,-4.51724 4e-5,-29.96699 -13.66662,-8.33482 z"
+         id="path15" /><path
+         style="fill:#225500;stroke:#d90200;stroke-width:0;paint-order:stroke markers fill"
+         d="m 657.23298,174.33352 v 9.73975 l 11.87824,-8.71015 v -15.76817 l -11.87824,-7.94731 -12.4943,7.94731 v 29.76845 l -6.15638,4.27042 14.78204,8.7178 0.0336,-37.60788 3.83504,-2.25858 2.94318,1.95946 v 7.66971 z"
+         id="path16" /><path
+         style="fill:#225500;stroke:#d90200;stroke-width:0;paint-order:stroke markers fill"
+         d="m 669.11122,186.00118 v 3.36222 l 4.75053,3.02353 -13.68559,9.96729 v -9.96729 z"
+         id="path17" /></g></g></svg>
