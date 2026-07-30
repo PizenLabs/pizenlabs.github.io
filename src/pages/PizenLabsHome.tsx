@@ -95,6 +95,52 @@ export default function PizenLabsHome() {
         </div>
       </section>
 
+      {/* ── ASSEMBLY ── */}
+      <section className="relative py-24 sm:py-32 border-t border-ink-500/50">
+        <div className="absolute inset-0 grid-bg opacity-30 pointer-events-none" aria-hidden />
+        <div className="relative mx-auto max-w-6xl px-6 sm:px-8">
+          <p className="font-mono text-[11px] tracking-[0.3em] text-bone-500 mb-10 reveal">
+            03 / ASSEMBLY
+          </p>
+          <div className="grid gap-8 sm:grid-cols-2">
+            {[
+              {
+                name: 'izen',
+                href: 'https://pizenlabs.github.io/izen314/',
+                desc: 'AI amplifies human judgment. Humans remain in control.',
+              },
+              {
+                name: 'lynx',
+                href: 'https://github.com/PizenLabs/lynx',
+                desc: 'Symbol-first repository discovery engine for AI-native developer tooling.',
+              },
+            ].map((project) => (
+              <a
+                key={project.name}
+                href={project.href}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="reveal group rounded-xl border border-ink-500/60 p-8 hover:border-forest-400/30 transition-colors"
+                style={{
+                  background:
+                    'linear-gradient(160deg, rgba(20,28,25,0.7) 0%, rgba(10,14,12,0.5) 100%)',
+                }}
+              >
+                <p className="font-mono text-[10px] tracking-[0.25em] text-bone-500 mb-3">
+                  PROJECT / {project.name.toUpperCase()}
+                </p>
+                <p className="font-sans text-xl sm:text-2xl text-bone-50 mb-4 group-hover:text-forest-300 transition-colors">
+                  {project.name}
+                </p>
+                <p className="text-bone-300 leading-relaxed">
+                  {project.desc}
+                </p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
 {/* ── OPEN SOURCE ── */}
       <section className="relative py-24 sm:py-32 border-t border-ink-500/50">
         <div className="absolute inset-0 grid-bg opacity-30 pointer-events-none" aria-hidden />
