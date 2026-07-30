@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { usePath } from '@/lib/router';
 import { useReveal } from '@/lib/useReveal';
 import PizenLabsHome from '@/pages/PizenLabsHome';
-import IzenExperience from '@/pages/IzenExperience';
 
 function NotFound() {
   return (
@@ -22,30 +21,27 @@ function App() {
   const path = usePath();
   useReveal();
 
-  // Re-run reveal whenever the page changes so new elements animate in.
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, [path]);
 
-  const isIzen = path === '/izen' || path === '/izen/';
   const isRoot = path === '/';
 
   useEffect(() => {
-    document.title = isRoot ? 'pizenlabs' : 'izen';
-  }, [isRoot, isIzen]);
+    document.title = 'pizenlabs';
+  }, []);
 
   useEffect(() => {
     const link = document.querySelector("link[rel='icon']") as HTMLLinkElement;
     if (link) {
-      link.href = isRoot ? '/pizenlabs.svg' : '/izen.svg';
+      link.href = '/pizenlabs.svg';
     }
-  }, [isRoot, isIzen]);
+  }, []);
 
   return (
     <>
       {isRoot && <PizenLabsHome />}
-      {isIzen && <IzenExperience />}
-      {!isRoot && !isIzen && <NotFound />}
+      {!isRoot && <NotFound />}
     </>
   );
 }

@@ -1,14 +1,6 @@
 import { navigate } from '@/lib/router';
 
-type Props = {
-  variant?: 'pizen' | 'izen';
-};
-
-/**
- * Minimal site header. On the PizenLabs root it shows the lab identity and a
- * quiet link to Izen. On the Izen page it is not used (Izen has its own nav).
- */
-export default function SiteHeader({ variant = 'pizen' }: Props) {
+export default function SiteHeader() {
   return (
     <header
       className="fixed top-0 inset-x-0 z-40 backdrop-blur-md border-b border-ink-500/60"
@@ -29,20 +21,9 @@ export default function SiteHeader({ variant = 'pizen' }: Props) {
           <span className="font-sans text-sm tracking-tightish text-bone-50 group-hover:text-forest-200 transition-colors">
             PizenLabs
           </span>
-          {variant === 'izen' && (
-            <span className="font-mono text-[10px] tracking-[0.25em] text-bone-400 ml-1">
-              / IZEN
-            </span>
-          )}
         </button>
 
         <nav className="flex items-center gap-6 text-sm">
-          <button
-            onClick={() => navigate('/izen/')}
-            className="font-mono text-xs tracking-[0.2em] text-bone-300 hover:text-forest-300 transition-colors"
-          >
-            IZEN
-          </button>
           <a
             href="https://github.com/PizenLabs"
             target="_blank"

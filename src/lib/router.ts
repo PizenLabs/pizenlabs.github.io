@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 /**
  * Resolve the absolute path of the current page relative to the site root,
- * accounting for GitHub Pages project-site subpaths (e.g. /izen/).
+ * accounting for GitHub Pages project-site subpaths.
  * Returns a normalized path beginning with "/" and no trailing slash
  * (except for the root itself).
  */
@@ -25,7 +25,7 @@ export function usePath() {
 
 /**
  * Navigate to a site-relative path without a full reload.
- * `to` is an absolute path beginning with "/" (e.g. "/izen/").
+ * `to` is an absolute path beginning with "/" (e.g. "/").
  */
 export function navigate(to: string) {
   if (to === window.location.pathname) return;
