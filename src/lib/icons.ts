@@ -7,8 +7,9 @@
  * add an icon here and it ships, delete it here and it cannot.
  */
 export {
-  ArrowUpRight,
+  ArrowLeft,
   ArrowRight,
+  ArrowUpRight,
   Eye,
   Terminal,
   GitBranch,
