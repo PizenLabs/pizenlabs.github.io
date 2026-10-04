@@ -2,29 +2,136 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/pizenlabs.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0a0e0c" />
+    <!--
+      Both schemes are supported. `theme-color` is rewritten by the bootstrap
+      script below whenever the resolved theme changes, so the browser chrome
+      follows a manual override too, not just the OS.
+    -->
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" id="theme-color" content="#f7f9f8" />
+
+    <title>PizenLabs — Tools for clearer human-computer collaboration</title>
     <meta
       name="description"
-      content="PizenLabs — a small open-source laboratory building tools for clearer human-computer collaboration."
+      content="PizenLabs is a small, independent open-source laboratory building tools for clearer human-computer collaboration. Read the source, fork it, improve it."
     />
-    <title>pizenlabs</title>
-    <meta property="og:title" content="pizenlabs" />
+    <link rel="canonical" href="https://pizenlabs.github.io/" />
+
+    <!-- Open Graph / social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PizenLabs" />
+    <meta property="og:title" content="PizenLabs — open-source laboratory" />
     <meta
       property="og:description"
-      content="A small open-source laboratory building tools for clearer human-computer collaboration."
+      content="A small, independent laboratory building open-source tools for clearer human-computer collaboration."
     />
-    <meta property="og:type" content="website" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    <meta property="og:url" content="https://pizenlabs.github.io/" />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" type="image/svg+xml" href="/pizenlabs.svg" />
+    <link rel="apple-touch-icon" href="/pizenlabs.svg" />
+
+    <!--
+      Theme bootstrap. This has to be synchronous and in <head>: it puts the
+      `dark` class on <html> before the first paint, so a dark-theme visitor
+      never sees a white flash. src/lib/useTheme.ts then reads that class back
+      instead of re-deriving the preference, which keeps the two from ever
+      disagreeing. Keep the storage key in sync with STORAGE_KEY in that hook.
+
+      Deliberately not a build step: a hashed external file would be a second
+      render-blocking request on the critical path.
+    -->
+    <script>
+      (function () {
+        var dark;
+        try {
+          var stored = localStorage.getItem('pizenlabs-theme');
+          dark =
+            stored !== null
+              ? stored === 'dark'
+              : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        } catch (e) {
+          // Storage can throw in private/locked-down contexts. The light
+          // default already declared in :root is the fallback.
+          dark = false;
+        }
+        document.documentElement.classList.toggle('dark', dark);
+        var meta = document.getElementById('theme-color');
+        if (meta) meta.setAttribute('content', dark ? '#0a0e0c' : '#f7f9f8');
+      })();
+    </script>
+
+    <!--
+      Self-hosted variable fonts. Preloading the display face matters most: it is
+      the largest text on the page and the only one the first paint cannot do
+      without. The other two are preloaded too, but after it, so they never
+      compete with the LCP resource.
+
+      These replace a render-blocking stylesheet request to fonts.googleapis.com
+      plus the follow-up font requests it triggered.
+    -->
+    <link rel="preload" href="/fonts/space-grotesk-latin-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-latin-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jetbrains-mono-latin-var.woff2" as="font" type="font/woff2" crossorigin />
+
+    <!--
+      The app's stylesheet ships inside the JS bundle, so the no-JS fallback
+      needs its own. These values mirror the light/dark tokens in
+      src/index.css — dark first, then the OS light preference.
+    -->
+    <noscript>
+      <style>
+        :root {
+          color-scheme: dark;
+        }
+        body {
+          margin: 0;
+          background: #0a0e0c;
+          color: #e6ede9;
+          font-family: system-ui, sans-serif;
+        }
+        .ns {
+          max-width: 40rem;
+          margin: 6rem auto;
+          padding: 0 1.5rem;
+        }
+        .ns h1 {
+          color: #f4f7f5;
+        }
+        .ns a {
+          color: #6fce94;
+        }
+        @media (prefers-color-scheme: light) {
+          :root {
+            color-scheme: light;
+          }
+          body {
+            background: #f7f9f8;
+            color: #1a2320;
+          }
+          .ns h1 {
+            color: #0c110e;
+          }
+          .ns a {
+            color: #1f7a4a;
+          }
+        }
+      </style>
+    </noscript>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div class="ns">
+        <h1>PizenLabs</h1>
+        <p>
+          A small, independent open-source laboratory building tools for clearer
+          human-computer collaboration.
+        </p>
+        <p><a href="https://github.com/PizenLabs">Browse the repositories →</a></p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
