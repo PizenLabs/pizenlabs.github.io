@@ -1,5 +1,5 @@
 import { ArrowUpRight, Github } from '@/lib/icons';
-import { GITHUB_URL, PROJECTS } from '@/lib/content';
+import { ARTICLES_PATH, GITHUB_URL, PROJECTS } from '@/lib/content';
 
 /**
  * Minimal footer: brand, source link, project index, and a back-to-top control.
@@ -81,6 +81,12 @@ export default function SiteFooter() {
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
             <p className="label text-bone-500">Built quietly. Read the source.</p>
+            <a
+              href={ARTICLES_PATH}
+              className="label link-underline text-bone-400 transition-colors duration-200 hover:text-bone-50"
+            >
+              Articles
+            </a>
             <a
               href="#top"
               className="label text-bone-400 transition-colors duration-200 hover:text-bone-50"

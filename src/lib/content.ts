@@ -31,6 +31,128 @@ export const PROJECTS: Project[] = [
   },
 ];
 
+
+/**
+ * Long-form posts. `body` is a small block union rather than Markdown: the site
+ * ships no parser, and copy is authored in this file next to everything else.
+ * Paragraph and list text may contain inline `code`, **strong**, and
+ * [label](href) — rendered by ArticleBody, never injected as HTML.
+ */
+export type ArticleBlock =
+  | { type: 'paragraph'; text: string }
+  | { type: 'heading'; text: string }
+  | { type: 'list'; items: string[] };
+
+export type Article = {
+  /** URL segment: /articles/<slug>. Also the React key. */
+  slug: string;
+  title: string;
+  /** Card summary, post intro, and meta description. */
+  standfirst: string;
+  /** Label as written, e.g. 'Company'. The index derives its chips from these. */
+  category: string;
+  /** ISO date (YYYY-MM-DD). Formatted in UTC so it never shifts a day. */
+  published: string;
+  body: ArticleBlock[];
+};
+
+export const ARTICLES: Article[] = [
+  {
+    slug: 'introducing-pizenlabs',
+    title: 'Introducing Pizenlabs',
+    standfirst:
+      'Who we are, what we are building, and why every part of it is open source.',
+    category: 'Company',
+    published: '2026-10-05',
+    body: [
+      {
+        type: 'paragraph',
+        text:
+          'PizenLabs is a small, independent laboratory. We start from an idea about how people should work with machines, build the system that embodies that idea, and then publish the whole thing.',
+      },
+      { type: 'heading', text: 'The idea we keep returning to' },
+      {
+        type: 'paragraph',
+        text:
+          'Technology should increase human capability without removing human agency. It is a test we can apply to any project: does this make the work more legible, or does it just move the decision somewhere less visible?',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'It is also why the work is open source. Understanding is part of the product, not a bonus feature shipped with it. If a system claims to help you think, you should be able to read exactly what it does.',
+      },
+      { type: 'heading', text: 'What is in flight' },
+      {
+        type: 'list',
+        items: [
+          '**izen** — an operator for AI-assisted work. AI amplifies human judgment; the operator stays in control of what the system is allowed to do. [Open it](https://pizenlabs.github.io/izen314/)',
+          '**lynx** — symbol-first repository discovery for AI-native developer tooling. [Read the source](https://github.com/PizenLabs/lynx)',
+        ],
+      },
+      { type: 'heading', text: 'How we work' },
+      {
+        type: 'paragraph',
+        text:
+          'Four habits, written the way we would like our own tools to behave:',
+      },
+      {
+        type: 'list',
+        items: [
+          '**Inspect** — every claim is checkable against the code.',
+          '**Understand** — understanding is part of the product, not a bonus.',
+          '**Fork freely** — extend it, remix it, break it.',
+          '**Contribute** — open an issue, send a patch. Small and considered changes are welcome.',
+        ],
+      },
+      { type: 'heading', text: 'Why write this down' },
+      {
+        type: 'paragraph',
+        text:
+          'Reasoning belongs next to the code, not buried inside it. This section is where we write down what we tried, what broke, and what we would do differently — so a reader can check our work instead of taking it on trust.',
+      },
+      {
+        type: 'paragraph',
+        text:
+          'Start with the [source](https://github.com/PizenLabs). It remains the most honest description of what we do.',
+      },
+    ],
+  },
+];
+
+/**
+ * Categories present in ARTICLES, in first-appearance order. Derived rather
+ * than declared, so publishing a post under a new category is the only step
+ * needed to make it a filter on the index.
+ */
+export const ARTICLE_CATEGORIES: string[] = [
+  ...new Set(ARTICLES.map((article) => article.category)),
+];
+
+/** Route prefix, shared by the nav link and the router so the two cannot drift. */
+export const ARTICLES_PATH = '/articles';
+
+/** UTC, so an ISO date never renders as the day before west of Greenwich. */
+export const DATE_FORMAT = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
+/** Computed from the body rather than stored, so it cannot drift from it. */
+export function readingMinutes(article: Article): number {
+  const words = article.body.reduce(
+    (total, block) =>
+      total +
+      (block.type === 'list' ? block.items : [block.text])
+        .join(' ')
+        .trim()
+        .split(/\s+/).length,
+    0
+  );
+  return Math.max(1, Math.round(words / 220));
+}
+
 export type Principle = {
   index: string;
   icon: 'eye' | 'terminal' | 'branch' | 'arrow';
@@ -65,10 +187,15 @@ export const PRINCIPLES: Principle[] = [
   },
 ];
 
+// Section anchors are written site-absolute so the shared header keeps working
+// on subpages: from /articles, `#work` would resolve to /articles#work.
 export const NAV_LINKS = [
-  { label: 'Philosophy', href: '#philosophy' },
-  { label: 'Work', href: '#work' },
-  { label: 'Principles', href: '#principles' },
+  { label: 'Philosophy', href: '/#philosophy' },
+  { label: 'Work', href: '/#work' },
+  { label: 'Principles', href: '/#principles' },
+  { label: 'Articles', href: ARTICLES_PATH },
 ];
 
+/** Absolute origin, for canonical and og:url. Matches index.html. */
+export const SITE_ORIGIN = 'https://pizenlabs.github.io';
 export const GITHUB_URL = 'https://github.com/PizenLabs';

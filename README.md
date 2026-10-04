@@ -19,14 +19,16 @@ npm run typecheck  # tsc --noEmit
 
 ```
 src/
-  pages/PizenLabsHome.tsx   page composition and section markup
-  components/               Backdrop, SiteHeader, SiteFooter, cards, panels
-  lib/content.ts            all copy and outbound links — edit copy here
-  lib/icons.ts              the only lucide-react import surface
-  lib/useReveal.ts          one IntersectionObserver for the whole page
-  lib/useScrollProgress.ts  rAF-coalesced scroll progress bar
-  lib/useSpotlight.ts       pointer-following card highlight
-  lib/useTheme.ts           light/dark state, persistence, OS preference
+  pages/                     PizenLabsHome, Articles, Article — route bodies
+  components/                PageShell (the frame), Backdrop, cards, ArticleBody
+  lib/content.ts             all copy, links, projects and articles — edit here
+  lib/icons.ts               the only lucide-react import surface
+  lib/router.ts              pathname → route, kept in sync with History
+  lib/usePageMeta.ts         per-route title, description, canonical, og:*
+  lib/useReveal.ts           one IntersectionObserver for the whole page
+  lib/useScrollProgress.ts   rAF-coalesced scroll progress bar
+  lib/useSpotlight.ts        pointer-following card highlight
+  lib/useTheme.ts            light/dark state, persistence, OS preference
   index.css                 design tokens, components, animations
   styles/fonts.css          GENERATED — see Fonts below
 scripts/fetch-fonts.mjs     regenerates fonts.css and public/fonts/
@@ -34,6 +36,59 @@ scripts/fetch-fonts.mjs     regenerates fonts.css and public/fonts/
 
 Copy lives in `src/lib/content.ts` so wording changes never require touching
 markup or styles.
+
+## Routes and articles
+
+| Path | Page |
+| --- | --- |
+| `/` | `pages/PizenLabsHome.tsx` |
+| `/articles` | `pages/Articles.tsx` — index, filtered by category |
+| `/articles/<slug>` | `pages/Article.tsx` — one post |
+| anything else | the 404 in `App.tsx` |
+
+`App.tsx` matches on `window.location.pathname`. Links are plain `<a href>`, so
+each route is a fresh document and scroll restoration, the back button, and the
+browser's own fragment handling stay native. GitHub Pages serves `dist/404.html`
+— the SPA shell — for any deep link, so no rewrite rule is needed.
+
+Header anchors are therefore written site-absolute (`/#philosophy`): from
+`/articles`, a bare `#philosophy` would resolve to `/articles#philosophy`. That
+cross-page fragment is resolved before React mounts the target, so `App.tsx`
+re-issues the scroll after the route renders — `html`'s `scroll-padding-top`
+already keeps the section clear of the fixed header.
+
+### Adding a post
+
+Add an entry to `ARTICLES` in `src/lib/content.ts`. Nothing else has to change:
+the slug becomes the URL, the category becomes a filter chip, the date drives
+the ordering, and the reading time is counted from the body rather than stored.
+
+```ts
+{
+  slug: 'why-we-publish-everything',
+  title: 'Why we publish everything',
+  standfirst: 'One sentence — the card, the post intro, and the meta description.',
+  category: 'Company',
+  published: '2026-11-02',
+  body: [
+    { type: 'paragraph', text: 'Prose with `code`, **strong**, and [a link](https://example.com).' },
+    { type: 'heading', text: 'A section' },
+    { type: 'list', items: ['First point', 'Second point'] },
+  ],
+}
+```
+
+`body` is a block union, not Markdown: `components/ArticleBody.tsx` renders it
+with no parser and no `dangerouslySetInnerHTML`, so inline syntax that does not
+match — an unbalanced `**`, a stray backtick — renders as the text the author
+wrote instead of breaking the post. Categories are derived from the posts
+(`ARTICLE_CATEGORIES`), so a post under a new category becomes its own chip
+without editing the page.
+
+Per-route `<title>`, description, canonical, and og tags are set by
+`usePageMeta`. That is client-side: a crawler fetching a deep link still sees
+the home page's tags from the static shell, which only real prerendering could
+fix.
 
 ## Theming
 
