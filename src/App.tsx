@@ -1,49 +1,41 @@
-import { useEffect } from 'react';
 import { usePath } from '@/lib/router';
 import { useReveal } from '@/lib/useReveal';
+import { useScrollProgress } from '@/lib/useScrollProgress';
+import Backdrop from '@/components/Backdrop';
+import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
 import PizenLabsHome from '@/pages/PizenLabsHome';
 
 function NotFound() {
   return (
-    <div className="min-h-screen bg-ink-800 text-bone-100 flex items-center justify-center">
-      <div className="text-center">
-        <p className="font-mono text-xs tracking-[0.3em] text-forest-300 mb-4">404 / NOT FOUND</p>
-        <h1 className="font-sans text-3xl mb-2">This path is not part of the system.</h1>
-        <a href="/" className="text-bone-300 hover:text-forest-300 transition-colors">
-          Return to PizenLabs →
+    <div className="relative flex min-h-screen flex-col">
+      <Backdrop />
+      <SiteHeader />
+      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 py-32 text-center">
+        <p className="label mb-6 text-forest-300">404 / Not found</p>
+        <h1 className="font-sans text-3xl font-medium tracking-tight text-bone-50 sm:text-[2.5rem]">
+          This path is not part of the system.
+        </h1>
+        <p className="mt-5 max-w-md text-pretty leading-relaxed text-bone-400">
+          The page you asked for does not exist — or it never did.
+        </p>
+        <a href="/" className="btn btn-primary mt-10">
+          Return to PizenLabs
         </a>
-      </div>
+      </main>
+      <SiteFooter />
     </div>
   );
 }
 
 function App() {
   const path = usePath();
+  // Both hooks use passive, rAF-coalesced listeners and a single shared
+  // IntersectionObserver, so mounting them for every route stays cheap.
   useReveal();
+  useScrollProgress();
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
-  }, [path]);
-
-  const isRoot = path === '/';
-
-  useEffect(() => {
-    document.title = 'pizenlabs';
-  }, []);
-
-  useEffect(() => {
-    const link = document.querySelector("link[rel='icon']") as HTMLLinkElement;
-    if (link) {
-      link.href = '/pizenlabs.svg';
-    }
-  }, []);
-
-  return (
-    <>
-      {isRoot && <PizenLabsHome />}
-      {!isRoot && <NotFound />}
-    </>
-  );
+  return path === '/' ? <PizenLabsHome /> : <NotFound />;
 }
 
 export default App;

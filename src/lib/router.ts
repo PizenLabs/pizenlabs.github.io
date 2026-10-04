@@ -1,18 +1,20 @@
 import { useEffect, useState } from 'react';
 
 /**
- * Resolve the absolute path of the current page relative to the site root,
- * accounting for GitHub Pages project-site subpaths.
- * Returns a normalized path beginning with "/" and no trailing slash
- * (except for the root itself).
+ * Resolve the current pathname, normalized (leading slash, no trailing slash).
  */
 function resolvePath(): string {
-  const raw = window.location.pathname.replace(/\/+$/, '') || '/';
-  return raw || '/';
+  return window.location.pathname.replace(/\/+$/, '') || '/';
 }
 
+/**
+ * Current path, kept in sync with the History API.
+ *
+ * Only `popstate` is listened for, and the state is a single string compared by
+ * React — so a history navigation costs one render, not a re-render of the tree.
+ */
 export function usePath() {
-  const [path, setPath] = useState<string>(() => resolvePath());
+  const [path, setPath] = useState<string>(resolvePath);
 
   useEffect(() => {
     const onChange = () => setPath(resolvePath());
@@ -21,26 +23,4 @@ export function usePath() {
   }, []);
 
   return path;
-}
-
-/**
- * Navigate to a site-relative path without a full reload.
- * `to` is an absolute path beginning with "/" (e.g. "/").
- */
-export function navigate(to: string) {
-  if (to === window.location.pathname) return;
-  window.history.pushState({}, '', to);
-  window.dispatchEvent(new PopStateEvent('popstate'));
-  window.scrollTo({ top: 0, behavior: 'auto' });
-}
-
-/** Prefix an asset/link path with the site base. */
-export function sitePath(p: string): string {
-  if (p.startsWith('/')) return p;
-  return '/' + p;
-}
-
-/** External link helper that opens in a new tab safely. */
-export function externalHref(url: string): string {
-  return url;
 }
