@@ -1,7 +1,50 @@
 import { useEffect, useState } from 'react';
 import { Github } from '@/lib/icons';
 import { GITHUB_URL, NAV_LINKS } from '@/lib/content';
+import { usePath } from '@/lib/router';
 import ThemeToggle from '@/components/ThemeToggle';
+
+/**
+ * Scrollspy for the home page's section links.
+ *
+ * One IntersectionObserver watches the anchored sections and reports the one
+ * crossing the viewport's middle band (rootMargin pinches the root to a thin
+ * horizontal strip). Only site-absolute `/#id` links participate, and only
+ * while the home route is mounted — everywhere else the links navigate away,
+ * so there is nothing to highlight. The active link gets `aria-current` plus
+ * full-strength text; the rest stay dimmed.
+ */
+function useScrollSpy(enabled: boolean) {
+  const [active, setActive] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!enabled || typeof IntersectionObserver === 'undefined') {
+      setActive(null);
+      return;
+    }
+
+    const sections = NAV_LINKS.filter((link) => link.href.startsWith('/#'))
+      .map((link) => document.getElementById(link.href.slice(2)))
+      .filter((el): el is HTMLElement => el !== null);
+    if (sections.length === 0) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const id = entry.target.id;
+          setActive((current) => (current === `/#${id}` ? current : `/#${id}`));
+        }
+      },
+      { rootMargin: '-45% 0px -50% 0px', threshold: 0 }
+    );
+
+    sections.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [enabled]);
+
+  return active;
+}
 
 /**
  * Tracks whether the page has scrolled past a threshold.
@@ -43,6 +86,8 @@ function useScrolled(threshold = 8) {
 
 export default function SiteHeader() {
   const scrolled = useScrolled();
+  const path = usePath();
+  const active = useScrollSpy(path === '/');
 
   return (
     <header
@@ -83,16 +128,22 @@ export default function SiteHeader() {
           {/* Section links are secondary: they collapse before the GitHub
               action does, so the primary CTA is never pushed off-screen. */}
           <ul className="hidden items-center lg:flex">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="link-underline rounded px-3 py-2 text-[0.8125rem] text-bone-400 transition-colors duration-200 hover:text-bone-50"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const isActive = active !== null && active === link.href;
+              return (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    aria-current={isActive ? 'location' : undefined}
+                    className={`link-underline rounded px-3 py-2 text-[0.8125rem] transition-colors duration-200 hover:text-bone-50 ${
+                      isActive ? 'text-bone-50' : 'text-bone-400'
+                    }`}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
 
           <ThemeToggle />

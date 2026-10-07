@@ -10,6 +10,8 @@ export {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
+  Check,
+  Copy,
   Eye,
   Terminal,
   GitBranch,

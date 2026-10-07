@@ -540,6 +540,14 @@
     contain: strict;
   }
 
+  /* Parallax wrapper: one per ambient layer. Carries the scroll-linked
+     translate3d written by useParallax; the animated child keeps its own
+     keyframed transform, and the two compose. */
+  .plx {
+    position: absolute;
+    inset: 0;
+  }
+
   .grid-bg {
     background-image:
       linear-gradient(var(--grid-line) 1px, transparent 1px),
@@ -555,7 +563,10 @@
      stays a modest texture (~900px max) instead of pinning a full-screen GPU
      surface. Easing is a hardcoded curve rather than var() inside the
      `animation` shorthand: WebKit drops the whole declaration when a custom
-     property appears there, which left these frozen/invisible on Safari. */
+     property appears there, which left these frozen/invisible on Safari.
+     Each field sits inside a .plx parallax wrapper (see Backdrop): the wrapper
+     carries scroll-linked translation, the field its keyframed drift, and the
+     two transforms compose instead of competing. */
   .aurora {
     position: absolute;
     border-radius: 9999px;

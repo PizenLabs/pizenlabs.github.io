@@ -33,6 +33,35 @@
     <link rel="apple-touch-icon" href="/pizenlabs.svg" />
 
     <!--
+      Structured data for search engines. Static here (no JS needed to read
+      it): the lab's identity and the site itself. Per-article graphs are
+      added by usePageMeta on post routes and removed on navigation.
+    -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://pizenlabs.github.io/#org",
+            "name": "PizenLabs",
+            "url": "https://pizenlabs.github.io/",
+            "description": "A small, independent open-source laboratory building tools for clearer human-computer collaboration.",
+            "email": "contact@pizenlabs.dev",
+            "sameAs": ["https://github.com/PizenLabs"]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://pizenlabs.github.io/#site",
+            "url": "https://pizenlabs.github.io/",
+            "name": "PizenLabs",
+            "publisher": { "@id": "https://pizenlabs.github.io/#org" }
+          }
+        ]
+      }
+    </script>
+
+    <!--
       Theme bootstrap. This has to be synchronous and in <head>: it puts the
       `dark` class on <html> before the first paint, so a dark-theme visitor
       never sees a white flash. src/lib/useTheme.ts then reads that class back

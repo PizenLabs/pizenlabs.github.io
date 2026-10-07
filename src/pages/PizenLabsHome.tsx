@@ -1,6 +1,7 @@
 import { ArrowRight, ArrowUpRight, Blocks, Eye, GitBranch, Mail, Terminal } from '@/lib/icons';
 import { ARTICLES, ARTICLES_PATH, CONTACT_EMAIL, GITHUB_URL, PRINCIPLES, PROJECTS } from '@/lib/content';
 import ArticleCard from '@/components/ArticleCard';
+import CopyEmail from '@/components/CopyEmail';
 import PageShell from '@/components/PageShell';
 import ProjectCard from '@/components/ProjectCard';
 import SectionLabel from '@/components/SectionLabel';
@@ -283,6 +284,9 @@ export default function PizenLabsHome() {
               <p className="mt-4 font-mono text-[0.75rem] leading-relaxed text-bone-500">
                 Small and considered messages welcome — issues and patches too.
               </p>
+              <div className="mt-5">
+                <CopyEmail email={CONTACT_EMAIL} />
+              </div>
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-60">
               <a

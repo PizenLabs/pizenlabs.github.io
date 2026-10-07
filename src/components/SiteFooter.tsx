@@ -1,5 +1,6 @@
 import { ArrowUpRight, Github, Mail } from '@/lib/icons';
 import { ARTICLES_PATH, CONTACT_EMAIL, GITHUB_URL, PROJECTS } from '@/lib/content';
+import LabClock from '@/components/LabClock';
 
 /**
  * Minimal footer: brand, contact, source link, project index, and a back-to-top control.
@@ -115,6 +116,7 @@ export default function SiteFooter() {
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
             <p className="label text-bone-500">Built quietly. Read the source.</p>
+            <LabClock />
             <a
               href={ARTICLES_PATH}
               className="label link-underline text-bone-400 transition-colors duration-200 hover:text-bone-50"

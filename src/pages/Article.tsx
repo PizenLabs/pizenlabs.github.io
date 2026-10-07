@@ -13,13 +13,20 @@ import { usePageMeta } from '@/lib/usePageMeta';
 /**
  * One post. Receives its article from the router, so the page itself is a pure
  * render — the slug is never re-parsed here.
+ *
+ * Module scope: the empty override object keeps a stable identity so the head
+ * effect below runs once per article, not once per render.
  */
+const ARTICLE_LD = {};
+
 export default function Article({ article }: { article: ArticlePost }) {
   usePageMeta({
     title: `${article.title} — PizenLabs`,
     description: article.standfirst,
     path: `${ARTICLES_PATH}/${article.slug}`,
     type: 'article',
+    publishedTime: article.published,
+    jsonLd: ARTICLE_LD,
   });
 
   return (

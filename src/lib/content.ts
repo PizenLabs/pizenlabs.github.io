@@ -37,6 +37,9 @@ export const PROJECTS: Project[] = [
  * ships no parser, and copy is authored in this file next to everything else.
  * Paragraph and list text may contain inline `code`, **strong**, and
  * [label](href) — rendered by ArticleBody, never injected as HTML.
+ *
+ * SEO note: publishing a new post means adding its URL to
+ * public/sitemap.xml too, so crawlers discover it without rendering JS.
  */
 export type ArticleBlock =
   | { type: 'paragraph'; text: string }
