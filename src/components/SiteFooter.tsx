@@ -1,8 +1,8 @@
-import { ArrowUpRight, Github } from '@/lib/icons';
-import { ARTICLES_PATH, GITHUB_URL, PROJECTS } from '@/lib/content';
+import { ArrowUpRight, Github, Mail } from '@/lib/icons';
+import { ARTICLES_PATH, CONTACT_EMAIL, GITHUB_URL, PROJECTS } from '@/lib/content';
 
 /**
- * Minimal footer: brand, source link, project index, and a back-to-top control.
+ * Minimal footer: brand, contact, source link, project index, and a back-to-top control.
  *
  * The back-to-top is a plain `#top` anchor rather than a JS scrollIntoView call
  * — the smooth behaviour (and its reduced-motion override) already lives in
@@ -14,8 +14,8 @@ export default function SiteFooter() {
   return (
     <footer className="relative z-10 mt-auto border-t border-ink-500/50">
       <div className="container-x py-14 sm:py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="lg:col-span-2">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_0.8fr_0.8fr_1fr]">
+          <div>
             <div className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 items-center justify-center rounded-md border border-ink-400/70 bg-ink-600/60">
                 <img
@@ -23,6 +23,7 @@ export default function SiteFooter() {
                   alt=""
                   width={14}
                   height={14}
+                  decoding="async"
                   className="brand-mark h-3.5 w-3.5"
                   aria-hidden="true"
                 />
@@ -35,7 +36,40 @@ export default function SiteFooter() {
               A small, independent laboratory building open-source tools for
               clearer human-computer collaboration.
             </p>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="link-underline mt-5 inline-flex items-center gap-2 font-mono text-[0.8125rem] tracking-wide text-forest-200"
+            >
+              <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+              {CONTACT_EMAIL}
+            </a>
           </div>
+
+          <nav aria-label="Contact">
+            <p className="label mb-4 text-bone-500">Contact</p>
+            <ul className="space-y-2.5">
+              <li>
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="link-underline inline-flex items-center gap-1.5 text-sm text-bone-300 hover:text-forest-200"
+                >
+                  Email the lab
+                  <ArrowUpRight className="h-3 w-3 opacity-50" aria-hidden="true" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href={GITHUB_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="link-underline inline-flex items-center gap-1.5 text-sm text-bone-300 hover:text-forest-200"
+                >
+                  Open an issue
+                  <ArrowUpRight className="h-3 w-3 opacity-50" aria-hidden="true" />
+                </a>
+              </li>
+            </ul>
+          </nav>
 
           <nav aria-label="Source">
             <p className="label mb-4 text-bone-500">Source</p>

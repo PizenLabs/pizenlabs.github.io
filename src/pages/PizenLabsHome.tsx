@@ -1,5 +1,5 @@
-import { ArrowRight, ArrowUpRight, Blocks, Eye, GitBranch, Terminal } from '@/lib/icons';
-import { ARTICLES, ARTICLES_PATH, GITHUB_URL, PRINCIPLES, PROJECTS } from '@/lib/content';
+import { ArrowRight, ArrowUpRight, Blocks, Eye, GitBranch, Mail, Terminal } from '@/lib/icons';
+import { ARTICLES, ARTICLES_PATH, CONTACT_EMAIL, GITHUB_URL, PRINCIPLES, PROJECTS } from '@/lib/content';
 import ArticleCard from '@/components/ArticleCard';
 import PageShell from '@/components/PageShell';
 import ProjectCard from '@/components/ProjectCard';
@@ -26,6 +26,14 @@ const HEADLINE = [
   { text: 'collaboration.', accent: true },
 ] as const;
 
+/** Lab ledger: the dossier strip under the hero. Not marketing stats — the
+    lab's current state, stated plainly. */
+const LEDGER = [
+  { k: 'Systems in flight', v: '02' },
+  { k: 'Operating principles', v: '04' },
+  { k: 'Source readable', v: '100%' },
+] as const;
+
 export default function PizenLabsHome() {
   return (
     <PageShell>
@@ -34,7 +42,7 @@ export default function PizenLabsHome() {
           thing anyone sees, and a slow entrance reads as sluggish rather
           than considered. */}
       <section className="relative pt-32 sm:pt-40 lg:pt-44" style={{ ['--reveal-step' as string]: '45ms' }}>
-        <div className="container-x pb-20 sm:pb-28">
+        <div className="container-x pb-16 sm:pb-20">
           <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 xl:gap-20">
             {/* Copy */}
             <div>
@@ -43,7 +51,7 @@ export default function PizenLabsHome() {
                 style={{ ['--reveal-i' as string]: 0 }}
               >
                 <span className="signal-dot" aria-hidden="true" />
-                <span className="label text-forest-300">Open source laboratory</span>
+                <span className="label text-forest-300">Open source laboratory — 01 / Index</span>
               </p>
 
               <h1 className="display mt-7 text-bone-50">
@@ -63,7 +71,8 @@ export default function PizenLabsHome() {
               >
                 PizenLabs is a small, independent laboratory building open-source
                 technology with a point of view. We explore the idea first, then
-                build the system that embodies it.
+                build the system that embodies it — and publish the whole thing
+                so you can check our work.
               </p>
 
               <div
@@ -84,10 +93,40 @@ export default function PizenLabsHome() {
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </a>
               </div>
+
+              <p
+                className="reveal mt-6 font-mono text-[0.75rem] tracking-wide text-bone-500"
+                style={{ ['--reveal-i' as string]: 6 }}
+              >
+                Prefer words?{' '}
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="link-underline text-bone-300 hover:text-forest-200"
+                >
+                  {CONTACT_EMAIL}
+                </a>
+              </p>
             </div>
 
             <TerminalPanel />
           </div>
+
+          {/* Lab ledger — a dossier strip, not a stats band. Borders instead of
+              cards: it should read as an instrument readout, not marketing. */}
+          <dl
+            className="reveal mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-ink-500/50 bg-ink-500/30 sm:mt-20 sm:grid-cols-3"
+            style={{ ['--reveal-i' as string]: 7 }}
+          >
+            {LEDGER.map((row) => (
+              <div
+                key={row.k}
+                className="flex items-baseline justify-between gap-4 bg-ink-800/80 px-5 py-4 sm:px-6"
+              >
+                <dt className="label text-bone-500">{row.k}</dt>
+                <dd className="font-mono text-sm tabular-nums text-bone-50">{row.v}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
@@ -97,14 +136,30 @@ export default function PizenLabsHome() {
           <SectionLabel index="02" title="Philosophy" className="mb-12 sm:mb-16" />
 
           <div className="grid gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-20">
-            <h2
-              className="headline-2 reveal text-bone-50"
-              style={{ ['--reveal-i' as string]: 1 }}
-            >
-              Technology should increase human capability{' '}
-              <span className="text-bone-400">without</span> removing human
-              agency.
-            </h2>
+            <div>
+              <h2
+                className="headline-2 reveal text-bone-50"
+                style={{ ['--reveal-i' as string]: 1 }}
+              >
+                Technology should increase human capability{' '}
+                <span className="text-bone-400">without</span> removing human
+                agency.
+              </h2>
+              {/* The test — the lab's one-line constitution, set apart so it
+                  reads as a rule rather than another paragraph. */}
+              <figure
+                className="reveal mt-10 border-l-2 border-forest-400/60 pl-6"
+                style={{ ['--reveal-i' as string]: 2 }}
+              >
+                <blockquote className="font-mono text-[0.8125rem] leading-relaxed text-bone-200">
+                  “Does this make the work more legible — or does it just move
+                  the decision somewhere less visible?”
+                </blockquote>
+                <figcaption className="label mt-3 text-bone-500">
+                  The test we apply to every project
+                </figcaption>
+              </figure>
+            </div>
 
             <div
               className="reveal space-y-6 border-l border-ink-400/60 pl-6 lg:pl-7"
@@ -118,6 +173,9 @@ export default function PizenLabsHome() {
               <p className="text-pretty leading-relaxed text-bone-400">
                 The work is open source because understanding is part of the
                 product. You should be able to read exactly what runs.
+              </p>
+              <p className="font-mono text-[0.75rem] leading-relaxed text-bone-500">
+                → Method: read the idea, build the system, publish everything.
               </p>
             </div>
           </div>
@@ -133,8 +191,8 @@ export default function PizenLabsHome() {
             <h2 className="font-sans text-2xl font-medium tracking-tight text-bone-50 sm:text-3xl">
               Current projects
             </h2>
-            <p className="text-sm text-bone-400 sm:text-right">
-              Two things in flight. Both readable, both forkable.
+            <p className="font-mono text-[0.75rem] tracking-wide text-bone-400 sm:text-right">
+              P.01 — P.02 · Both readable, both forkable.
             </p>
           </div>
 
@@ -205,27 +263,46 @@ export default function PizenLabsHome() {
         </div>
       </section>
 
-      {/* ── CLOSING ─────────────────────────────────────────────────────── */}
-      <section className="rule-t">
+      {/* ── 06 / CONTACT ────────────────────────────────────────────────── */}
+      <section id="contact" className="rule-t">
         <div className="container-x section-y !pb-24 sm:!pb-28">
-          <div className="panel spotlight reveal flex flex-col items-start gap-8 !rounded-2xl px-7 py-10 sm:px-12 sm:py-14 lg:flex-row lg:items-center lg:justify-between lg:gap-14">
+          <SectionLabel index="06" title="Contact" className="mb-12 sm:mb-14" />
+          <div className="panel spotlight reveal flex flex-col items-start gap-10 !rounded-2xl px-7 py-10 sm:px-12 sm:py-14 lg:flex-row lg:items-center lg:justify-between lg:gap-14">
             <div className="max-w-2xl">
-              <p className="label mb-5 text-forest-300">No black boxes</p>
+              <p className="label mb-5 text-forest-300">No black boxes — no closed doors</p>
               <h2 className="font-sans text-2xl font-medium leading-tight tracking-tight text-bone-50 sm:text-[2rem]">
                 Everything we publish is meant to be read, run, and improved by
-                someone else.
+                someone else. Start with a message.
               </h2>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="contact-mail mt-7"
+              >
+                {CONTACT_EMAIL}
+              </a>
+              <p className="mt-4 font-mono text-[0.75rem] leading-relaxed text-bone-500">
+                Small and considered messages welcome — issues and patches too.
+              </p>
             </div>
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="btn btn-primary shrink-0"
-            >
-              <Blocks className="h-3.5 w-3.5" aria-hidden="true" />
-              Browse the repositories
-              <ArrowUpRight className="btn-arrow h-3.5 w-3.5" aria-hidden="true" />
-            </a>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-60">
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="btn btn-primary w-full shrink-0 sm:w-auto"
+              >
+                <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+                Write to the lab
+              </a>
+              <a
+                href={GITHUB_URL}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="btn btn-ghost w-full shrink-0 sm:w-auto"
+              >
+                <Blocks className="h-3.5 w-3.5" aria-hidden="true" />
+                Browse the repositories
+                <ArrowUpRight className="btn-arrow h-3.5 w-3.5" aria-hidden="true" />
+              </a>
+            </div>
           </div>
         </div>
       </section>

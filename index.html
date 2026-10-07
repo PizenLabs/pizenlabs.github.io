@@ -102,6 +102,19 @@
         .ns a {
           color: #6fce94;
         }
+        /* Reveals are JS-driven (IntersectionObserver adds .is-visible).
+           Without JS every .reveal would sit at opacity 0 forever. */
+        .reveal,
+        .reveal-shift {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+        .line-mask > span,
+        .term-line {
+          opacity: 1 !important;
+          transform: none !important;
+          animation: none !important;
+        }
         @media (prefers-color-scheme: light) {
           :root {
             color-scheme: light;

@@ -193,9 +193,13 @@ export const NAV_LINKS = [
   { label: 'Philosophy', href: '/#philosophy' },
   { label: 'Work', href: '/#work' },
   { label: 'Principles', href: '/#principles' },
+  { label: 'Contact', href: '/#contact' },
   { label: 'Articles', href: ARTICLES_PATH },
 ];
 
 /** Absolute origin, for canonical and og:url. Matches index.html. */
 export const SITE_ORIGIN = 'https://pizenlabs.github.io';
 export const GITHUB_URL = 'https://github.com/PizenLabs';
+
+/** Direct line to the lab. Rendered as a mailto: in the footer and contact section. */
+export const CONTACT_EMAIL = 'contact@pizenlabs.dev';

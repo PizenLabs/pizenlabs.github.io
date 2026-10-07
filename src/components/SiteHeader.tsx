@@ -69,6 +69,7 @@ export default function SiteHeader() {
               alt=""
               width={14}
               height={14}
+              decoding="async"
               className="brand-mark h-3.5 w-3.5"
               aria-hidden="true"
             />

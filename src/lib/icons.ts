@@ -15,6 +15,7 @@ export {
   GitBranch,
   Github,
   Blocks,
+  Mail,
   Moon,
   Sun,
 } from 'lucide-react';

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import Backdrop from '@/components/Backdrop';
+import DiagOverlay from '@/components/DiagOverlay';
 import SiteFooter from '@/components/SiteFooter';
 import SiteHeader from '@/components/SiteHeader';
 
@@ -29,6 +30,7 @@ export default function PageShell({ children }: { children: ReactNode }) {
       </main>
 
       <SiteFooter />
+      <DiagOverlay />
     </div>
   );
 }
