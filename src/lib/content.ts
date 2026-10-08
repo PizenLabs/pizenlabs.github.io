@@ -203,6 +203,9 @@ export const NAV_LINKS = [
 /** Absolute origin, for canonical and og:url. Matches index.html. */
 export const SITE_ORIGIN = 'https://pizenlabs.github.io';
 export const GITHUB_URL = 'https://github.com/PizenLabs';
+export const BLUESKY_URL = 'https://bsky.app/profile/pizenlabs.bsky.social';
+export const BLUESKY_HANDLE = '@pizenlabs.bsky.social';
+export const LINKEDIN_URL = 'https://www.linkedin.com/company/pizenlabs/about/';
 
 /** Direct line to the lab. Rendered as a mailto: in the footer and contact section. */
 export const CONTACT_EMAIL = 'contact@pizenlabs.dev';

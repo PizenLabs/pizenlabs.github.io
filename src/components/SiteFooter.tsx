@@ -1,5 +1,13 @@
-import { ArrowUpRight, Github, Mail } from '@/lib/icons';
-import { ARTICLES_PATH, CONTACT_EMAIL, GITHUB_URL, PROJECTS } from '@/lib/content';
+import { ArrowUpRight, Bluesky, Github, Linkedin, Mail } from '@/lib/icons';
+import {
+  ARTICLES_PATH,
+  BLUESKY_HANDLE,
+  BLUESKY_URL,
+  CONTACT_EMAIL,
+  GITHUB_URL,
+  LINKEDIN_URL,
+  PROJECTS,
+} from '@/lib/content';
 import LabClock from '@/components/LabClock';
 
 /**
@@ -72,8 +80,8 @@ export default function SiteFooter() {
             </ul>
           </nav>
 
-          <nav aria-label="Source">
-            <p className="label mb-4 text-bone-500">Source</p>
+          <nav aria-label="Connect">
+            <p className="label mb-4 text-bone-500">Connect</p>
             <ul className="space-y-2.5">
               <li>
                 <a
@@ -84,6 +92,30 @@ export default function SiteFooter() {
                 >
                   <Github className="h-3.5 w-3.5" aria-hidden="true" />
                   github.com/PizenLabs
+                  <ArrowUpRight className="h-3 w-3 opacity-50" aria-hidden="true" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href={BLUESKY_URL}
+                  target="_blank"
+                  rel="noreferrer noopener me"
+                  className="link-underline inline-flex items-center gap-1.5 text-sm text-bone-300 hover:text-forest-200"
+                >
+                  <Bluesky className="h-3.5 w-3.5" aria-hidden="true" />
+                  {BLUESKY_HANDLE}
+                  <ArrowUpRight className="h-3 w-3 opacity-50" aria-hidden="true" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href={LINKEDIN_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="link-underline inline-flex items-center gap-1.5 text-sm text-bone-300 hover:text-forest-200"
+                >
+                  <Linkedin className="h-3.5 w-3.5" aria-hidden="true" />
+                  PizenLabs on LinkedIn
                   <ArrowUpRight className="h-3 w-3 opacity-50" aria-hidden="true" />
                 </a>
               </li>

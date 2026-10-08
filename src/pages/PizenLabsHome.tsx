@@ -1,5 +1,5 @@
-import { ArrowRight, ArrowUpRight, Blocks, Eye, GitBranch, Mail, Terminal } from '@/lib/icons';
-import { ARTICLES, ARTICLES_PATH, CONTACT_EMAIL, GITHUB_URL, PRINCIPLES, PROJECTS } from '@/lib/content';
+import { ArrowRight, ArrowUpRight, Blocks, Bluesky, Eye, GitBranch, Linkedin, Mail, Terminal } from '@/lib/icons';
+import { ARTICLES, ARTICLES_PATH, BLUESKY_HANDLE, BLUESKY_URL, CONTACT_EMAIL, GITHUB_URL, LINKEDIN_URL, PRINCIPLES, PROJECTS } from '@/lib/content';
 import ArticleCard from '@/components/ArticleCard';
 import CopyEmail from '@/components/CopyEmail';
 import PageShell from '@/components/PageShell';
@@ -287,6 +287,26 @@ export default function PizenLabsHome() {
               <div className="mt-5">
                 <CopyEmail email={CONTACT_EMAIL} />
               </div>
+              <p className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[0.75rem] tracking-wide text-bone-500">
+                <a
+                  href={BLUESKY_URL}
+                  target="_blank"
+                  rel="noreferrer noopener me"
+                  className="link-underline inline-flex items-center gap-1.5 text-bone-300 hover:text-forest-200"
+                >
+                  <Bluesky className="h-3.5 w-3.5" aria-hidden="true" />
+                  {BLUESKY_HANDLE}
+                </a>
+                <a
+                  href={LINKEDIN_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="link-underline inline-flex items-center gap-1.5 text-bone-300 hover:text-forest-200"
+                >
+                  <Linkedin className="h-3.5 w-3.5" aria-hidden="true" />
+                  LinkedIn
+                </a>
+              </p>
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-60">
               <a
