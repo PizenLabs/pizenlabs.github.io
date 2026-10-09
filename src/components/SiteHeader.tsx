@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Github } from '@/lib/icons';
 import { GITHUB_URL, NAV_LINKS } from '@/lib/content';
 import { usePath } from '@/lib/router';
+import { subscribeScroll } from '@/lib/scrollPipeline';
 import ThemeToggle from '@/components/ThemeToggle';
 
 /**
@@ -49,36 +50,24 @@ function useScrollSpy(enabled: boolean) {
 /**
  * Tracks whether the page has scrolled past a threshold.
  *
- * The listener is passive and rAF-coalesced, and the result is a boolean that
- * flips a handful of times per session — so the only React work is the two or
- * three actual state changes. The visual result is opacity transitions on an
- * already-composited header, with `backdrop-filter` only enabled once scrolling
- * has actually started.
+ * Reads the shared scroll pipeline instead of attaching a listener of its own.
+ * The result is a boolean that flips a handful of times per session, so the only
+ * React work is the two or three actual state changes — and the guard below
+ * means the setter is not even called on the frames in between. The visual
+ * result is opacity transitions on an already-composited header, with
+ * `backdrop-filter` only enabled once scrolling has actually started.
  */
 function useScrolled(threshold = 8) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    let frame = 0;
     let current = window.scrollY > threshold;
-
-    const check = () => {
-      frame = 0;
-      const next = window.scrollY > threshold;
+    return subscribeScroll(({ y }) => {
+      const next = y > threshold;
       if (next === current) return;
       current = next;
       setScrolled(next);
-    };
-
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(check);
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', onScroll);
-    };
+    });
   }, [threshold]);
 
   return scrolled;

@@ -24,9 +24,11 @@ src/
   lib/content.ts             all copy, links, projects and articles — edit here
   lib/icons.ts               the only lucide-react import surface
   lib/router.ts              pathname → route, kept in sync with History
+  lib/scrollPipeline.ts      THE scroll listener + rAF + idle state (shared)
   lib/usePageMeta.ts         per-route title, description, canonical, og:*
   lib/useReveal.ts           one IntersectionObserver for the whole page
-  lib/useScrollProgress.ts   rAF-coalesced scroll progress bar
+  lib/useScrollProgress.ts   progress bar, subscribed to the scroll pipeline
+  lib/useParallax.ts         scroll-linked layer offset, same pipeline
   lib/useSpotlight.ts        pointer-following card highlight
   lib/useTheme.ts            light/dark state, persistence, OS preference
   index.css                 design tokens, components, animations
@@ -186,10 +188,26 @@ Decisions here are deliberate; several look unusual until you know why.
   subtree from Chromium's accessibility tree until it is rendered, which hid the
   closing section's heading and link from assistive tech. On a page this small
   the saving is not worth it.
-- **Scroll and pointer handlers never call `setState` directly.** They are
-  passive, coalesce into one `requestAnimationFrame`, and skip the write when the
-  rounded value has not changed. Card highlights write CSS custom properties
-  instead of re-rendering.
+- **One scroll pipeline, not one listener per effect.** `lib/scrollPipeline.ts`
+  owns the single passive `scroll` listener and the single `requestAnimationFrame`.
+  Parallax (three layers), the progress bar, and the header's scrolled state
+  subscribe to it. Before this they each attached their own listener and
+  scheduled their own rAF, so one scroll frame meant three style-write batches
+  that could land in different frames.
+- **`scrollHeight` is never read in the scroll frame.** It is cached and refreshed
+  from a `ResizeObserver` on `<body>` plus the window `resize` event. Reading it
+  per frame forces a synchronous layout on every scroll tick — the classic
+  scroll-jank cause, because the browser must finish layout before it can apply
+  the compositor transform you just requested.
+- **Ambient motion stops when the page does.** The drift layers cost a compositor
+  pass per frame for as long as they run. After ~1.5s with no scroll or pointer
+  movement they get `animation: none` (not `paused`), so their layers leave the
+  layer tree and their textures are released. Any input restarts them. Idle
+  detection lives in the scroll pipeline, so it costs no extra listeners.
+- **The signal pulse is a scaled pseudo-element, not an animated `box-shadow`.**
+  An animating shadow spread repaints the header on every frame of the loop and
+  invalidates whatever paints behind it. Scale + opacity on `::after` is one
+  compositor transform instead.
 - **Icons are re-exported from `src/lib/icons.ts`** so the lucide dependency is
   explicit and auditable.
 
@@ -200,6 +218,40 @@ All motion is `transform` / `opacity` only, and
 state — nothing is left invisible or mid-transition. Scroll reveals use one
 shared `IntersectionObserver` that unobserves each element once it has fired, so
 the browser stops doing work as soon as the page settles.
+
+### Entrances are `@keyframes`, not transitions
+
+This is the one thing worth understanding before editing a reveal.
+
+A **transition** only animates if the browser already holds a "before" computed
+style to interpolate from. When the class that triggers it is applied before
+that snapshot exists, the element jumps straight to its end state and the motion
+is never seen — identical CSS, different engine, different result. That is how
+this site came to read as a static page in some browsers while animating in
+others.
+
+A **keyframes animation** starts from its own `from` frame the moment the class
+lands, so it cannot be skipped that way. Two rules follow from it:
+
+- **The animation lives on `.is-visible`, never on the base class.** On the base
+  class it would start at page load for every element — including those below the
+  fold — so they would all finish animating into nothing before the visitor
+  scrolled to them, and then appear with no motion at all.
+- **Fill mode is `backwards`.** It holds the `from` frame through the stagger
+  delay, then releases onto `.is-visible`'s own `opacity: 1` / `transform: none`
+  (already the end state). `forwards`/`both` also pin the end frame, but keep the
+  finished animation — and its compositor layer — alive for the life of the page.
+
+Both directions matter. The reveal is the only thing standing between a visitor
+and a page whose content is `opacity: 0`, so an entrance that silently fails is
+worse than no entrance at all. `useReveal` therefore also guarantees every class
+arrives: no `IntersectionObserver`, reduced motion, or elements already on screen
+at mount all reveal immediately, and a repeating safety sweep with a widening
+slack catches anything the observer misses.
+
+To check a change without a browser: `getComputedStyle` on a `.reveal` further
+down the page should report a non-`none` `animation-name`, and its final computed
+`opacity` should be `1` after scrolling past it.
 
 ## Accessibility
 
