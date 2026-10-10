@@ -1,18 +1,21 @@
 import { useEffect, useRef } from 'react';
+import { subscribeScroll } from '@/lib/scrollPipeline';
 
 /**
  * Scroll-linked parallax for one backdrop layer.
  *
  * The element rides `scrollY * depth` pixels via `translate3d` — compositor
- * only, no layout or paint. The listener is passive and rAF-coalesced, writes
- * nothing when scrollY is unchanged, and clamps the shift so a long page
- * cannot drag a layer out of its frame. Layers using keyframed `transform`
- * animations sit INSIDE the wrapper, so the two transforms compose instead
- * of fighting over the same property.
+ * only, no layout or paint. It reads from the shared scroll pipeline rather than
+ * attaching its own listener, so all parallax layers plus the progress bar are
+ * written once per frame instead of once per layer. The shift is clamped so a
+ * long page cannot drag a layer out of its frame.
  *
- * Disabled callers pass depth 0 or unmount under prefers-reduced-motion:
- * parallax is decorative depth, and still air is the correct reduced-motion
- * answer.
+ * Layers using keyframed `transform` animations sit INSIDE the wrapper, so the
+ * two transforms compose instead of fighting over the same property — that is
+ * why the wrapper is never the animated element itself.
+ *
+ * Disabled callers pass depth 0: parallax is decorative depth, and still air is
+ * the correct reduced-motion answer.
  */
 export function useParallax<T extends HTMLElement>(depth: number) {
   const ref = useRef<T>(null);
@@ -23,28 +26,15 @@ export function useParallax<T extends HTMLElement>(depth: number) {
     const el = ref.current;
     if (!el || depthRef.current === 0) return;
 
-    let frame = 0;
-    let lastY = -1;
+    let last = '';
 
-    const apply = () => {
-      frame = 0;
-      const y = window.scrollY;
-      if (y === lastY) return;
-      lastY = y;
+    return subscribeScroll(({ y }) => {
       const shift = Math.max(-72, Math.min(72, y * depthRef.current));
-      el.style.transform = `translate3d(0, ${shift.toFixed(1)}px, 0)`;
-    };
-
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(apply);
-    };
-
-    apply();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', onScroll);
-    };
+      const key = shift.toFixed(1);
+      if (key === last) return;
+      last = key;
+      el.style.transform = `translate3d(0, ${key}px, 0)`;
+    });
   }, []);
 
   return ref;

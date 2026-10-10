@@ -537,6 +537,10 @@
     z-index: 0;
     pointer-events: none;
     overflow: hidden;
+    /* `strict` here is load-bearing: size containment is what stops this fixed
+       layer being measured against the document (it reports as a 4095px-tall
+       surface instead of a viewport-tall one), and paint containment keeps the
+       aurora textures from being rasterized outside it. */
     contain: strict;
   }
 
@@ -638,7 +642,13 @@
      The real scroll-cost wins come from the single fixed backdrop and from
      keeping every animation on transform/opacity. */
 
-  /* Scroll progress: a compositor-only scaleX on a fixed bar. */
+  /* Scroll progress: a compositor-only scaleX on a fixed bar.
+
+     `will-change` is justified here and nowhere else: this is the one element
+     whose transform is written on essentially every scroll frame for the whole
+     session, so promoting it up front avoids a re-raster mid-scroll. A 2px
+     full-width layer is cheap; the same trick on the auroras (which animate
+     forever) would pin hundreds of MB. */
   .progress-bar {
     position: fixed;
     top: 0;
@@ -651,6 +661,9 @@
     background: linear-gradient(90deg, rgb(var(--accent)) 0%, rgb(var(--accent-bright)) 100%);
     will-change: transform;
     pointer-events: none;
+    /* Kept out of the main content's layer tree so its own commits cannot
+       invalidate the page beneath it. */
+    contain: strict;
   }
 
   /* Hairline that draws itself in under a section item. */
@@ -662,6 +675,8 @@
   }
 
   .reveal.is-visible .rule-grow {
+    /* `forwards` holds scaleX(1) after the run, so the rule does not snap back
+       to 0 when the animation is released. */
     -webkit-animation: rule-grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     animation: rule-grow 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     animation-delay: calc(var(--reveal-i, 0) * var(--reveal-step));
@@ -671,23 +686,50 @@
 /* ============================================================================
    REVEAL ON SCROLL
    One IntersectionObserver for the whole page (see lib/useReveal.ts).
-   `will-change` is deliberately absent: opacity/transform transitions are
-   already compositor-promoted, and a permanent will-change would pin every
+
+   Animations, not transitions. A transition only runs if the browser already
+   has a "before" computed style to interpolate from; if the class that triggers
+   it lands before that snapshot exists, the element jumps straight to its end
+   state and the motion is simply never seen. That is not hypothetical — it is
+   why this site read as a static page in some browsers and animated in others,
+   with identical CSS. A `@keyframes` animation starts from its own `from`
+   frame the moment the class is applied, so it cannot be skipped.
+
+   `will-change` is deliberately absent: opacity/transform animations are
+   already compositor-driven, and a permanent will-change would pin every
    revealed element into its own GPU layer for the life of the page.
+
+   `backwards` fill is what makes this robust: it holds the `from` frame during
+   the stagger delay, then releases, and the element falls back to its authored
+   `.is-visible` styles — which are already the end state. `forwards`/`both` would
+   also hold the end frame, but keeping a finished animation alive keeps its
+   compositor layer alive too, and a page where every revealed element still has
+   a live animation is a page holding dozens of textures. This way a layer is
+   dropped as soon as its entrance finishes.
    ========================================================================= */
 @layer utilities {
   .reveal {
     opacity: 0;
     transform: translateY(18px);
-    transition:
-      opacity var(--dur-slow) var(--ease-out-expo),
-      transform var(--dur-slow) var(--ease-out-expo);
-    transition-delay: calc(var(--reveal-i, 0) * var(--reveal-step));
   }
 
+  /* The animation lives on `.is-visible`, never on the base class. Putting it
+     on the base would start every entrance at page load — including elements
+     still below the fold — so they would all have finished animating into
+     nothing before the visitor ever scrolled to them, and then reveal with no
+     motion at all. Here the animation cannot begin until the observer has
+     actually decided the element is on screen.
+
+     `backwards` fill holds the `from` frame through the stagger delay and then
+     releases, dropping the element onto `.is-visible`'s own `opacity: 1` /
+     `transform: none` — already the end state, so nothing has to stay animated.
+     `forwards` would also pin the end frame but would keep the finished
+     animation (and its compositor layer) alive for the life of the page. */
   .reveal.is-visible {
     opacity: 1;
     transform: none;
+    animation: reveal-in var(--dur-slow) var(--ease-out-expo) backwards;
+    animation-delay: calc(var(--reveal-i, 0) * var(--reveal-step));
   }
 
   /* Transform-only entrance, for elements the browser is likely to score as
@@ -699,16 +741,16 @@
      measurable, so the motion is kept and the metric is not sacrificed. */
   .reveal-shift {
     transform: translateY(14px);
-    transition: transform var(--dur-slow) var(--ease-out-expo);
-    transition-delay: calc(var(--reveal-i, 0) * var(--reveal-step));
   }
 
   .reveal-shift.is-visible {
     transform: none;
+    animation: reveal-shift-in var(--dur-slow) var(--ease-out-expo) backwards;
+    animation-delay: calc(var(--reveal-i, 0) * var(--reveal-step));
   }
 
-  /* Masked line-by-line headline reveal. Transform only — see useReveal.ts for
-     why this element must not fade from opacity 0. */
+  /* Masked line-by-line headline reveal. Transform only — see above for why
+     this element must not fade from opacity 0. */
   .line-mask {
     display: block;
     overflow: hidden;
@@ -719,11 +761,40 @@
   .line-mask > span {
     display: block;
     transform: translateY(112%);
-    transition: transform 0.8s var(--ease-out-expo);
-    transition-delay: calc(var(--reveal-i, 0) * 65ms);
   }
 
   .line-mask.is-visible > span {
+    transform: none;
+    animation: line-mask-in 0.8s var(--ease-out-expo) backwards;
+    animation-delay: calc(var(--reveal-i, 0) * 65ms);
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes reveal-shift-in {
+  from {
+    transform: translateY(14px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes line-mask-in {
+  from {
+    transform: translateY(112%);
+  }
+  to {
     transform: none;
   }
 }
@@ -731,6 +802,11 @@
 /* Signal dot: the only place the logo's neon green is used in the UI.
    Easing is hardcoded (see aurora note): var() in the animation shorthand
    is dropped by WebKit, freezing the pulse on Safari. */
+/* The pulse ring is a ::after rather than an animated `box-shadow`: a shadow
+   spread that grows every frame is a repaint of the header on every frame of
+   the loop, and it also invalidates whatever paints behind it. A pseudo
+   element scaled up and faded is one compositor transform instead, and the ring
+   costs nothing on the main thread. */
 .signal-dot {
   position: relative;
   width: 0.375rem;
@@ -740,6 +816,21 @@
   box-shadow: 0 0 0 0 var(--signal-ring);
   -webkit-animation: signal-pulse 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
   animation: signal-pulse 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.signal-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 1px var(--signal-ring);
+  opacity: 0;
+  /* No will-change here, unlike the progress bar: this is a 6px element whose
+     animation is dropped entirely whenever the page goes idle, so it is not
+     held on screen for long and a permanent promotion would be pure waste. */
+  -webkit-animation: signal-ring 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  animation: signal-ring 3.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  pointer-events: none;
 }
 
 .caret::after {
@@ -818,15 +909,21 @@
   }
 }
 
-@keyframes signal-pulse {
+/* The dot itself holds still; the ::after ring expands and fades. Scaled from
+   the dot's own 0.375rem box up to ~0.5rem of spread, matching what the old
+   box-shadow version rendered. */
+@keyframes signal-ring {
   0% {
-    box-shadow: 0 0 0 0 var(--signal-ring);
+    transform: scale(1);
+    opacity: 0.9;
   }
   70% {
-    box-shadow: 0 0 0 0.5rem transparent;
+    transform: scale(3.6);
+    opacity: 0;
   }
   100% {
-    box-shadow: 0 0 0 0 transparent;
+    transform: scale(3.6);
+    opacity: 0;
   }
 }
 
@@ -917,12 +1014,31 @@
 }
 
 /* Background tabs: freeze the ambient drift so an idle page holds no
-   compositor work. Toggled by Backdrop's visibility listener. */
-.backdrop[data-paused='true'] .aurora-a,
-.backdrop[data-paused='true'] .aurora-b,
-.backdrop[data-paused='true'] .signal-dot {
+   compositor work. Toggled by Backdrop's visibility listener.
+
+   The signal dot's ring is paused through the parent, since the animation runs
+   on its ::after and is therefore a descendant, not the `.signal-dot` itself. */
+.backdrop[data-paused='true'] .aurora,
+.backdrop[data-paused='true'] .signal-dot,
+.backdrop[data-paused='true'] .signal-dot::after,
+.backdrop[data-paused='true'] .caret::after {
   -webkit-animation-play-state: paused;
   animation-play-state: paused;
+}
+
+/* Ambient drift is decoration that costs a compositor pass per frame for the
+   life of the page. Stopping it while the page is idle — not merely hidden —
+   removes that cost for every reader who stops scrolling to read. `animation:
+   none` rather than `paused` so the element also drops out of the layer tree
+   instead of holding its texture alive. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-idle='true'] .aurora,
+  html[data-idle='true'] .signal-dot,
+  html[data-idle='true'] .signal-dot::after,
+  html[data-idle='true'] .caret::after {
+    -webkit-animation: none;
+    animation: none;
+  }
 }
 
 /* ============================================================================
@@ -940,15 +1056,30 @@
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
   }
 
+  /* Every entrance resolves to its end state. Written per-class rather than as
+     a blanket `animation: none`, because removing the animation reverts an
+     element to its authored (pre-animation) styles — which for `.reveal` and
+     `.term-line` is opacity 0. That would leave the page blank, which is the
+     exact failure this block exists to prevent. */
   .reveal,
   .reveal-shift,
   .line-mask > span,
   .term-line {
     opacity: 1 !important;
     transform: none !important;
+    animation: none !important;
+  }
+
+  /* These have no meaningful static state to fall back to: the rule must stay
+     drawn and the dot must still read as live. */
+  .rule-grow {
+    transform: scaleX(1) !important;
+    animation: none !important;
   }
 }

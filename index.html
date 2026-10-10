@@ -132,16 +132,19 @@
           color: #6fce94;
         }
         /* Reveals are JS-driven (IntersectionObserver adds .is-visible).
-           Without JS every .reveal would sit at opacity 0 forever. */
+           Without JS every .reveal would sit at opacity 0 forever. Entrances now
+           run as @keyframes animations, so `animation: none` is required too —
+           without it these would hold their `both` fill and never settle. */
         .reveal,
-        .reveal-shift {
-          opacity: 1 !important;
-          transform: none !important;
-        }
+        .reveal-shift,
         .line-mask > span,
         .term-line {
           opacity: 1 !important;
           transform: none !important;
+          animation: none !important;
+        }
+        .rule-grow {
+          transform: scaleX(1) !important;
           animation: none !important;
         }
         @media (prefers-color-scheme: light) {
