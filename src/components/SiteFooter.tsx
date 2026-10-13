@@ -125,7 +125,7 @@ export default function SiteFooter() {
           <nav aria-label="Projects">
             <p className="label mb-4 text-bone-500">Projects</p>
             <ul className="space-y-2.5">
-              {PROJECTS.map((project) => (
+              {PROJECTS.filter((project) => !project.hidden).map((project) => (
                 <li key={project.name}>
                   <a
                     href={project.href}

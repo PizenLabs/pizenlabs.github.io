@@ -198,7 +198,7 @@ export default function PizenLabsHome() {
           </div>
 
           <div className="grid gap-5 sm:gap-6 md:grid-cols-2">
-            {PROJECTS.map((project, i) => (
+            {PROJECTS.filter((project) => !project.hidden).map((project, i) => (
               <ProjectCard key={project.name} project={project} index={i} />
             ))}
           </div>

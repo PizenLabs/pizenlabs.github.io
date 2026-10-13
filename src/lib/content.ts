@@ -10,6 +10,8 @@ export type Project = {
   /** Shown as a small meta line under the summary. */
   meta: string;
   kind: string;
+  /** Hidden projects stay in the data but render nowhere. */
+  hidden?: boolean;
 };
 
 export const PROJECTS: Project[] = [
@@ -20,6 +22,7 @@ export const PROJECTS: Project[] = [
       'AI amplifies human judgment. The operator stays in control of what the system is allowed to do.',
     meta: 'Live at pizenlabs.github.io/izen314',
     kind: 'Applied',
+    hidden: true,
   },
   {
     name: 'lynx',
@@ -27,6 +30,14 @@ export const PROJECTS: Project[] = [
     summary:
       'Symbol-first repository discovery engine for AI-native developer tooling.',
     meta: 'github.com/PizenLabs/lynx',
+    kind: 'Open source',
+  },
+  {
+    name: 'ohgo',
+    href: 'https://pizenlabs.dev/ohgo-web/',
+    summary:
+      'OHGO enforces structural execution boundaries across your codebase. Models are untrusted proposal engines — the runtime controls tool admission, capability policy, and state verification.',
+    meta: 'Live at pizenlabs.dev/ohgo-web',
     kind: 'Open source',
   },
 ];
