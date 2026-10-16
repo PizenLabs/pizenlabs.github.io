@@ -34,10 +34,10 @@ export const PROJECTS: Project[] = [
   },
   {
     name: 'ohgo',
-    href: 'https://pizenlabs.dev/ohgo-web/',
+    href: 'https://pizenlabs.dev/ohgo-agent/',
     summary:
       'OHGO enforces structural execution boundaries across your codebase. Models are untrusted proposal engines — the runtime controls tool admission, capability policy, and state verification.',
-    meta: 'Live at pizenlabs.dev/ohgo-web',
+    meta: 'Live at pizenlabs.dev/ohgo-agent',
     kind: 'Open source',
   },
 ];
