@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import Backdrop from '@/components/Backdrop';
 import DiagOverlay from '@/components/DiagOverlay';
+import PiDigits from '@/components/PiDigits';
 import SiteFooter from '@/components/SiteFooter';
 import SiteHeader from '@/components/SiteHeader';
 
@@ -8,6 +9,9 @@ import SiteHeader from '@/components/SiteHeader';
  * The frame every route renders inside: skip link, backdrop, scroll progress,
  * header, footer. Only the page body differs between routes, and `id="top"` is
  * here because the footer's back-to-top and the skip link both target it.
+ *
+ * The tape of digits sits between the backdrop and the content, so the
+ * numbers are behind the type rather than over it.
  */
 export default function PageShell({ children }: { children: ReactNode }) {
   return (
@@ -20,6 +24,7 @@ export default function PageShell({ children }: { children: ReactNode }) {
       </a>
 
       <Backdrop />
+      <PiDigits />
       {/* Scroll progress: compositor-only scaleX driven by useScrollProgress. */}
       <div className="progress-bar" aria-hidden="true" />
 

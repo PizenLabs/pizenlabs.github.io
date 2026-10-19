@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParallax } from '@/lib/useParallax';
+import { useMotion } from '@/lib/useMotion';
 
 /**
  * The page's ambient background: a fixed stack of a base wash, a grid, and
@@ -22,18 +23,22 @@ import { useParallax } from '@/lib/useParallax';
  * relative motion, not from blur or extra surfaces. Wrappers only, never the
  * animated elements themselves: a keyframed `transform` would override an
  * inline one on the same node.
+ *
+ * Motion mode: the drift itself always runs — it is the slowest and calmest
+ * thing on the page, and a backdrop that does not move reads as a flat
+ * background. Only the scroll-linked parallax follows the mode, because that
+ * is the one layer whose movement is tied to the visitor's own scrolling.
  */
-const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
-
 export default function Backdrop() {
   const [paused, setPaused] = useState(() => document.hidden);
-  const [reducedMotion] = useState(() =>
-    window.matchMedia(REDUCED_MOTION_QUERY).matches
-  );
+  const { mode } = useMotion();
 
-  const gridRef = useParallax<HTMLDivElement>(reducedMotion ? 0 : 0.03);
-  const auroraARef = useParallax<HTMLDivElement>(reducedMotion ? 0 : 0.06);
-  const auroraBRef = useParallax<HTMLDivElement>(reducedMotion ? 0 : 0.1);
+  // Parallax is scroll-linked movement: it follows the viewport, so it is the
+  // first thing to go when the visitor asks for less motion.
+  const depth = mode === 'full' ? 1 : 0;
+  const gridRef = useParallax<HTMLDivElement>(depth * 0.03);
+  const auroraARef = useParallax<HTMLDivElement>(depth * 0.06);
+  const auroraBRef = useParallax<HTMLDivElement>(depth * 0.1);
 
   useEffect(() => {
     const onVisibility = () => setPaused(document.hidden);

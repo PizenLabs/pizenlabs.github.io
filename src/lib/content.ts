@@ -205,7 +205,7 @@ export const PRINCIPLES: Principle[] = [
 // on subpages: from /articles, `#work` would resolve to /articles#work.
 export const NAV_LINKS = [
   { label: 'Philosophy', href: '/#philosophy' },
-  { label: 'Work', href: '/#work' },
+  { label: 'Projects', href: '/#work' },
   { label: 'Principles', href: '/#principles' },
   { label: 'Contact', href: '/#contact' },
   { label: 'Articles', href: ARTICLES_PATH },

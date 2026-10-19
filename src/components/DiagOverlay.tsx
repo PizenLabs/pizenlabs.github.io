@@ -20,12 +20,21 @@ function snapshot() {
     ua: navigator.userAgent,
     io: String(typeof IntersectionObserver),
     reducedMotion: String(matchMedia('(prefers-reduced-motion: reduce)').matches),
+    motion: document.documentElement.getAttribute('data-motion') ?? 'unset',
     reveal: `${q('.reveal.is-visible')}/${q('.reveal')}`,
     mask: `${q('.line-mask.is-visible')}/${q('.line-mask')}`,
-    termOpacity: cs('.term-line', 'opacity'),
-    termAnim: cs('.term-line', 'animation-name'),
     auroraAnim: cs('.aurora-a', 'animation-name'),
     signalAnim: cs('.signal-dot', 'animation-name'),
+    // The tape of digits is text, so "did it render" is a question about
+    // the resolved animation and the row count, not about a request.
+    piRows: `${q('.pi-row')} rows`,
+    piAnim: cs('.pi-row', 'animation-name'),
+    piDuration: cs('.pi-row', 'animation-duration'),
+    // The dial rail is positioned by custom properties, so the question is
+    // whether the track index and the position actually reached the element.
+    dials: `${q('.dial')} dials`,
+    dialTransform: cs('.dial', 'transform'),
+    dialAnim: cs('.dial', 'animation-name'),
     fonts: document.fonts ? document.fonts.status : 'unsupported',
   };
 }

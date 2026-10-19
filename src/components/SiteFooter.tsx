@@ -143,7 +143,21 @@ export default function SiteFooter() {
         </div>
 
         <div className="mt-12 flex flex-col gap-4 border-t border-ink-500/50 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="label text-bone-500">
+          <p className="label flex items-center gap-3 text-bone-500">
+            {/* The lab's mark. */}
+            <span
+              className="flex h-6 w-6 items-center justify-center rounded-full border border-ink-400/70 bg-ink-600/60"
+              aria-hidden="true"
+            >
+              <img
+                src="/pizenlabs.svg"
+                alt=""
+                width={12}
+                height={12}
+                decoding="async"
+                className="brand-mark h-3 w-3"
+              />
+            </span>
             © {year} PizenLabs — open source
           </p>
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3">

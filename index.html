@@ -62,11 +62,14 @@
     </script>
 
     <!--
-      Theme bootstrap. This has to be synchronous and in <head>: it puts the
-      `dark` class on <html> before the first paint, so a dark-theme visitor
-      never sees a white flash. src/lib/useTheme.ts then reads that class back
-      instead of re-deriving the preference, which keeps the two from ever
-      disagreeing. Keep the storage key in sync with STORAGE_KEY in that hook.
+      Theme and motion bootstrap. This has to be synchronous and in <head>: it
+      puts the `dark` class and the `data-motion` attribute on <html> before the
+      first paint, so a dark-theme visitor never sees a white flash and the
+      page never starts in one motion mode and settles into another.
+      src/lib/useTheme.ts and src/lib/useMotion.ts then read those back instead
+      of re-deriving the preferences, which keeps the two from ever
+      disagreeing. The theme's storage key is the only one left; the motion
+      mode follows the system and is not stored.
 
       Deliberately not a build step: a hashed external file would be a second
       render-blocking request on the critical path.
@@ -88,6 +91,16 @@
         document.documentElement.classList.toggle('dark', dark);
         var meta = document.getElementById('theme-color');
         if (meta) meta.setAttribute('content', dark ? '#0a0e0c' : '#f7f9f8');
+
+        // Motion: the operating system decides the mode, and nothing else
+        // does. There is no toggle and no stored choice — the page's motion
+        // is part of the page, and the one control a visitor has over it is
+        // the one their system already offers. The digits of pi therefore
+        // scroll from the first paint, unless the system asks for less.
+        document.documentElement.setAttribute(
+          'data-motion',
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'calm' : 'full'
+        );
       })();
     </script>
 
@@ -138,10 +151,15 @@
           opacity: 1 !important;
           transform: none !important;
         }
-        .line-mask > span,
-        .term-line {
+        .line-mask > span {
           opacity: 1 !important;
           transform: none !important;
+          animation: none !important;
+        }
+        /* The rule draws itself in with a keyframe animation; without it the
+           hairline would stay scaled to zero. */
+        .rule-grow {
+          transform: scaleX(1) !important;
           animation: none !important;
         }
         @media (prefers-color-scheme: light) {
