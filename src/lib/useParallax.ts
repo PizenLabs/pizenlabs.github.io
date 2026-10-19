@@ -10,18 +10,23 @@ import { useEffect, useRef } from 'react';
  * animations sit INSIDE the wrapper, so the two transforms compose instead
  * of fighting over the same property.
  *
- * Disabled callers pass depth 0 or unmount under prefers-reduced-motion:
- * parallax is decorative depth, and still air is the correct reduced-motion
- * answer.
+ * A depth of 0 disables the effect: the transform is cleared and no listener
+ * is attached at all. Callers pass 0 whenever the site's motion mode is not
+ * `full` — see lib/useMotion.ts — because scroll-linked movement is the one
+ * piece of this site's motion that can cause real trouble, so it is the first
+ * thing to go when the visitor asks for less.
  */
 export function useParallax<T extends HTMLElement>(depth: number) {
   const ref = useRef<T>(null);
-  const depthRef = useRef(depth);
-  depthRef.current = depth;
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || depthRef.current === 0) return;
+    if (!el) return;
+
+    if (depth === 0) {
+      el.style.transform = '';
+      return;
+    }
 
     let frame = 0;
     let lastY = -1;
@@ -31,7 +36,7 @@ export function useParallax<T extends HTMLElement>(depth: number) {
       const y = window.scrollY;
       if (y === lastY) return;
       lastY = y;
-      const shift = Math.max(-72, Math.min(72, y * depthRef.current));
+      const shift = Math.max(-72, Math.min(72, y * depth));
       el.style.transform = `translate3d(0, ${shift.toFixed(1)}px, 0)`;
     };
 
@@ -45,7 +50,7 @@ export function useParallax<T extends HTMLElement>(depth: number) {
       if (frame) cancelAnimationFrame(frame);
       window.removeEventListener('scroll', onScroll);
     };
-  }, []);
+  }, [depth]);
 
   return ref;
 }

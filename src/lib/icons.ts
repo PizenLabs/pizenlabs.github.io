@@ -23,6 +23,7 @@ export {
   Linkedin,
   Mail,
   Moon,
+  Rocket,
   Sun,
 } from 'lucide-react';
 

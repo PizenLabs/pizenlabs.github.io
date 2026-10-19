@@ -3,9 +3,9 @@ import { ARTICLES, ARTICLES_PATH, BLUESKY_HANDLE, BLUESKY_URL, CONTACT_EMAIL, GI
 import ArticleCard from '@/components/ArticleCard';
 import CopyEmail from '@/components/CopyEmail';
 import PageShell from '@/components/PageShell';
-import ProjectCard from '@/components/ProjectCard';
+import ProjectRow from '@/components/ProjectRow';
+import GlobeRocket from '@/components/GlobeRocket';
 import SectionLabel from '@/components/SectionLabel';
-import TerminalPanel from '@/components/TerminalPanel';
 
 const PRINCIPLE_ICONS = {
   eye: Eye,
@@ -39,27 +39,47 @@ export default function PizenLabsHome() {
   return (
     <PageShell>
       {/* ── 01 / HERO ───────────────────────────────────────────────────── */}
-      {/* Tighter stagger than the rest of the page: the hero is the first
-          thing anyone sees, and a slow entrance reads as sluggish rather
-          than considered. */}
-      <section className="relative pt-32 sm:pt-40 lg:pt-44" style={{ ['--reveal-step' as string]: '45ms' }}>
-        <div className="container-x pb-16 sm:pb-20">
-          <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 xl:gap-20">
+      {/* The hero is the whole first screen. Nothing below it is in view:
+          the sub-projects, the philosophy, the articles and the footer all
+          arrive on the scroll, which is what makes the page read as a
+          landing page rather than as a document.
+
+          The composition is deliberately off-centre. A narrow rail carries
+          the page's index down the left margin, the copy sits against it,
+          and the dial rail carries the current projects on the right, so the
+          hero reads as a spread rather than a centred template.
+
+          Everything is sized in `vh` as well as `vw`, because the hero has
+          to fit the screen it is on: a tall window gets a larger medallion,
+          a short laptop gets a smaller one, and neither pushes the copy off
+          the bottom. */}
+      <section className="hero relative flex min-h-[100svh] flex-col justify-center pb-[clamp(0.75rem,2.5vh,1.75rem)] pt-[calc(var(--header-h)+clamp(0.75rem,2.5vh,2rem))]">
+        <div className="container-x">
+          <div className="grid items-center gap-x-12 gap-y-7 sm:gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-x-14 xl:grid-cols-[1.5rem_minmax(0,1fr)_minmax(0,0.92fr)]">
+            {/* The index rail — the page's spine, out in the margin. */}
+            <div className="hidden xl:flex xl:flex-col xl:items-center" aria-hidden="true">
+              <span className="index-rail-label label text-bone-500">01 / Index</span>
+              <span className="index-rail mt-5" />
+            </div>
+
             {/* Copy */}
-            <div>
+            <div className="self-center xl:col-start-2">
               <p
                 className="reveal flex items-center gap-2.5"
                 style={{ ['--reveal-i' as string]: 0 }}
               >
                 <span className="signal-dot" aria-hidden="true" />
-                <span className="label text-forest-300">Open source laboratory — 01 / Index</span>
+                <span className="label text-forest-300">Open source laboratory</span>
               </p>
 
-              <h1 className="display mt-7 text-bone-50">
+              <h1 className="display mt-6 text-bone-50">
                 {HEADLINE.map((line, i) => (
                   <span key={line.text} className="line-mask" style={{ ['--reveal-i' as string]: i + 1 }}>
                     <span className={line.accent ? 'text-forest-300' : undefined}>
                       {line.text}
+                      {/* A caret in the terminal's language: a rule, not a
+                          block, so the page keeps its smooth edges. */}
+                      {line.accent && <span className="caret-bar" aria-hidden="true" />}
                     </span>
                   </span>
                 ))}
@@ -67,7 +87,7 @@ export default function PizenLabsHome() {
 
               {/* Transform-only entrance: see .reveal-shift in index.css. */}
               <p
-                className="lede reveal-shift mt-8"
+                className="lede reveal-shift mt-7"
                 style={{ ['--reveal-i' as string]: 4 }}
               >
                 PizenLabs is a small, independent laboratory building open-source
@@ -77,7 +97,7 @@ export default function PizenLabsHome() {
               </p>
 
               <div
-                className="reveal mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
+                className="reveal mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center"
                 style={{ ['--reveal-i' as string]: 5 }}
               >
                 <a
@@ -96,7 +116,7 @@ export default function PizenLabsHome() {
               </div>
 
               <p
-                className="reveal mt-6 font-mono text-[0.75rem] tracking-wide text-bone-500"
+                className="reveal mt-6 hidden font-mono text-[0.75rem] tracking-wide text-bone-500 sm:block"
                 style={{ ['--reveal-i' as string]: 6 }}
               >
                 Prefer words?{' '}
@@ -109,25 +129,35 @@ export default function PizenLabsHome() {
               </p>
             </div>
 
-            <TerminalPanel />
+            {/* The globe: a rotating planet with a rocket in orbit. */}
+            <div className="reveal self-center xl:col-start-3" style={{ ['--reveal-i' as string]: 2 }}>
+              <GlobeRocket />
+            </div>
           </div>
 
-          {/* Lab ledger — a dossier strip, not a stats band. Borders instead of
-              cards: it should read as an instrument readout, not marketing. */}
-          <dl
-            className="reveal mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-ink-500/50 bg-ink-500/30 sm:mt-20 sm:grid-cols-3"
-            style={{ ['--reveal-i' as string]: 7 }}
-          >
-            {LEDGER.map((row) => (
-              <div
-                key={row.k}
-                className="flex items-baseline justify-between gap-4 bg-ink-800/80 px-5 py-4 sm:px-6"
-              >
-                <dt className="label text-bone-500">{row.k}</dt>
-                <dd className="font-mono text-sm tabular-nums text-bone-50">{row.v}</dd>
-              </div>
-            ))}
-          </dl>
+          {/* The foot of the hero: the ledger, and the invitation to keep
+              going. Both sit on one line so the hero still ends inside the
+              screen. */}
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-t border-ink-500/40 pt-5 sm:mt-10">
+            <dl className="hidden flex-wrap items-center gap-x-6 gap-y-2 sm:flex">
+              {LEDGER.map((row) => (
+                <div key={row.k} className="flex items-baseline gap-2">
+                  <dt className="label text-bone-500">{row.k}</dt>
+                  <dd className="font-mono text-[0.75rem] tabular-nums text-bone-300">{row.v}</dd>
+                </div>
+              ))}
+            </dl>
+            <a
+              href="#philosophy"
+              className="link-underline group flex items-center gap-2 label text-bone-500 hover:text-bone-200"
+            >
+              Scroll for the rest
+              <ArrowRight
+                className="h-3 w-3 rotate-90 transition-transform duration-300 group-hover:translate-y-1"
+                aria-hidden="true"
+              />
+            </a>
+          </div>
         </div>
       </section>
 
@@ -183,23 +213,26 @@ export default function PizenLabsHome() {
         </div>
       </section>
 
-      {/* ── 03 / WORK ───────────────────────────────────────────────────── */}
+      {/* ── 03 / SUB-PROJECTS ───────────────────────────────────────────── */}
+      {/* The hero shows the projects as a compact index; this is the same list,
+          them, written out. It is below the fold on purpose — the hero is
+          the shop window, and this is the catalogue. */}
       <section id="work" className="rule-t">
         <div className="container-x section-y">
-          <SectionLabel index="03" title="Work" className="mb-12 sm:mb-16" />
+          <SectionLabel index="03" title="Sub-projects" className="mb-12 sm:mb-16" />
 
           <div className="reveal mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <h2 className="font-sans text-2xl font-medium tracking-tight text-bone-50 sm:text-3xl">
-              Current projects
+              What the lab is building
             </h2>
             <p className="font-mono text-[0.75rem] tracking-wide text-bone-400 sm:text-right">
-              P.01 — P.02 · Both readable, both forkable.
+              Every project is readable, and every project is forkable.
             </p>
           </div>
 
-          <div className="grid gap-5 sm:gap-6 md:grid-cols-2">
+          <div className="border-b border-ink-500/50">
             {PROJECTS.filter((project) => !project.hidden).map((project, i) => (
-              <ProjectCard key={project.name} project={project} index={i} />
+              <ProjectRow key={project.name} project={project} index={i} />
             ))}
           </div>
         </div>

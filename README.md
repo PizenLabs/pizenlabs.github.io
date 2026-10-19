@@ -23,8 +23,10 @@ src/
   components/                PageShell (the frame), Backdrop, cards, ArticleBody
   lib/content.ts             all copy, links, projects and articles — edit here
   lib/icons.ts               the only lucide-react import surface
+  lib/pi.ts                  the digits of pi, for the ambient tape
   lib/router.ts              pathname → route, kept in sync with History
   lib/usePageMeta.ts         per-route title, description, canonical, og:*
+  lib/useMotion.ts           the site's motion mode (full / calm)
   lib/useReveal.ts           one IntersectionObserver for the whole page
   lib/useScrollProgress.ts   rAF-coalesced scroll progress bar
   lib/useSpotlight.ts        pointer-following card highlight
@@ -36,6 +38,94 @@ scripts/fetch-fonts.mjs     regenerates fonts.css and public/fonts/
 
 Copy lives in `src/lib/content.ts` so wording changes never require touching
 markup or styles.
+
+## The dial rail
+
+The hero's current-projects slider: circular medallions on a horizontal rail.
+The rail is a ring — each project appears once per lap, and the active
+medallion sits at the front, in the centre of the viewport, with the next one
+just off the right edge.
+
+```
+.dial-rail   the whole block: the label, the rail, the caption
+.rail        the viewport the medallions travel through
+.rail-track  the strip the medallions are placed on
+.dial        one medallion
+.dial-face   its lit face
+.dial-sweep  the arc that runs round its rim
+.dial-orbit  the dashed ring behind it
+.dial-nav    the round navigation buttons
+.dial-dot    the round position markers
+```
+
+### The geometry
+
+A medallion's position is `(--t - --pos) * --step`, where `--t` is its track
+index and `--pos` the track index of the one at the front. The track is
+periodic — the content of a track index is `index % count` — so the rail has no
+end, and the arrangement in front of the visitor at one end of it is the
+arrangement at the other.
+
+That periodicity is also how the wrap works. When the rail reaches the end of
+its content, the position is snapped back **without** a transition: the
+medallions in front of the visitor do not move, only the bookkeeping does. A
+transition there would make the rail jump a whole lap.
+
+The size of a medallion and the distance between them are CSS values, sized
+against the viewport height as well as its width, because the hero has to fit
+the screen it is on.
+
+### A ring with two medallions
+
+With only two projects, the ring puts the same project on both sides of the
+front one — there are only two positions there. So one copy of each project is
+dropped: the copy nearest the front wins, and a tie goes to the copy on the
+right, which is the one that peeks in at the edge. The dropped copy is dimmed
+to nothing rather than deleted, because it is the one that slides in from the
+left when the rail turns back, and it fades up as it arrives.
+
+## The pi tape
+
+The ambient layer: the digits of pi, scrolling across the screen behind the
+content. Five rows, a few percent opacity, travelling at different speeds so
+they cross rather than move as a block.
+
+Each row holds two identical strips of digits and slides by exactly half its
+own width, so the second strip lands where the first one was: the tape is
+endless and the seam is invisible. It is a `transform` keyframe, so the whole
+layer costs the compositor a texture and nothing else — no layout, no paint,
+and no JavaScript on a timer.
+
+The digits live in `lib/pi.ts` as a literal, a thousand of them, written in
+blocks of sixty-four so the source stays readable.
+
+## The hero's composition
+
+The hero is the whole first screen. Nothing below it is in view: the
+sub-projects, the philosophy, the articles and the footer all arrive on the
+scroll, which is what makes the page read as a landing page rather than as a
+document.
+
+It is deliberately off-centre, and it is the only place the layout breaks its
+own rules:
+
+- a narrow **rail** in the left margin carries the page's index, vertically,
+  and runs a hairline down the height of the copy;
+- the copy sits hard against it;
+- the **dial rail** carries the current projects on the right, with the
+  medallion centred in its column and the next project peeking in at the
+  edge, so the composition reads as a spread rather than a symmetrical
+  template.
+
+The hero is `min-h-[100svh]`, so it fills the screen it is on and grows only
+when the content genuinely will not fit. Everything in it is sized against the
+viewport height as well as its width: a tall window gets a large medallion, a
+short laptop a small one, and neither pushes the copy off the bottom.
+
+The headline's `.display` size is set so its longest masked line
+("human-computer") fits on one line *in the hero's copy column* at every
+breakpoint. The column is narrower than the page because the dial rail sits
+beside it, and a wrapped mask line defeats the effect.
 
 ## Routes and articles
 
@@ -192,14 +282,71 @@ Decisions here are deliberate; several look unusual until you know why.
   instead of re-rendering.
 - **Icons are re-exported from `src/lib/icons.ts`** so the lucide dependency is
   explicit and auditable.
+- **The tape of digits is text, not an image.** A thousand digits would be a
+  few kilobytes as a font-rendered string and a request otherwise, and it
+  costs the compositor one texture. It moves with `transform` alone, so
+  scrolling costs nothing.
+- **The medallions are positioned with custom properties, not React state per
+  frame.** The rail's position is one number; the medallions read it through
+  `--t` and `--pos`, and CSS does the arithmetic. Turning the rail is a state
+  write and a style write, not a re-render per medallion.
 
 ## Motion
 
-All motion is `transform` / `opacity` only, and
-`@media (prefers-reduced-motion: reduce)` resolves every animation to its end
-state — nothing is left invisible or mid-transition. Scroll reveals use one
-shared `IntersectionObserver` that unobserves each element once it has fired, so
-the browser stops doing work as soon as the page settles.
+All motion is `transform` / `opacity` only, and every animation ends in a
+defined state — nothing is left invisible or mid-transition. Scroll reveals
+use one shared `IntersectionObserver` that unobserves each element once it has
+fired, so the browser stops doing work as soon as the page settles.
+
+### Motion modes
+
+`<html data-motion>` is the single switch for everything that moves:
+
+| Mode | What moves |
+| --- | --- |
+| `full` | Everything: the tape of digits scrolls, the backdrop drifts, the dial's arc turns, sections reveal as they scroll into view, the layers parallax. |
+| `calm` | The slow, harmless layer only — the drifting backdrop, the blinking caret, the pulsing signal dot, hover feedback. The entrance motion is skipped, and the two large continuous movements (the tape, the arc) are frozen. |
+
+The mode is written by the bootstrap script in `index.html` before the first
+paint, so the page never starts in one mode and settles into another, and
+`lib/useMotion.ts` reads the attribute back rather than re-deriving it.
+
+- **The OS preference decides the mode, and there is no toggle.** The page's
+  motion is part of the page, the way the type is: the digits of pi scroll
+  from the first paint, because that is what the site is. The one control a
+  visitor has over it is the one their operating system already offers them.
+- **The OS preference only softens the motion.** With
+  `prefers-reduced-motion: reduce`, the site runs in `calm`. It used to
+  answer that preference with a blanket
+  `animation-duration: 0.01ms !important` on every element, which froze the
+  whole page: measured in WebKit, the rendered page changed by **zero pixels
+  over six seconds**. A page with no motion at all reads as broken rather than
+  as "reduced", and the OS switch is blunt — it silences the harmless ambient
+  layer along with the movement that actually causes trouble. So `calm`
+  freezes the two movements that are large and endless, and leaves the rest.
+- **The drift has to be visible to count as animation.** The backdrop used to
+  travel 2% over 36s, which measured as a **1.6px shift over twelve
+  seconds** — technically animated, visually a still image. It now crosses a
+  visible distance in a quarter of the time.
+
+### Cross-browser hardening
+
+- **No custom property inside a shorthand.** WebKit builds that drop a
+  declaration containing a `var()` from `animation` drop it from `transition`
+  too, silently and without an error. Transitions are therefore declared as
+  `transition-property` / `transition-duration` / `transition-timing-function`,
+  which accept `var()` in every engine. Where two properties need different
+  durations, the longhand takes a matching list.
+- **The reveal cannot be stranded.** A scroll watchdog reveals anything the
+  observer has not handled, so a broken `IntersectionObserver` — the shape of
+  the bug in several embedded WebViews — no longer leaves whole sections
+  invisible. Measured against a stub observer that never reports: six
+  elements used to stay invisible, none do now.
+- **`?diag` reports the truth from the field.** The overlay prints the user
+  agent, the motion mode, the reduced-motion state, the reveal counts and the
+  resolved animation names — including the tape's row count and duration, and
+  the dial rail's resolved transform, since the rail is positioned by custom
+  properties and "did it move" is a question about computed styles.
 
 ## Accessibility
 
@@ -209,6 +356,12 @@ image and icon. The theme toggle is a `role="switch"` with `aria-checked` rather
 than a button whose accessible name changes on activation — a control that
 renames itself is awkward to announce, and `aria-checked` is readable without
 re-focusing it.
+
+The dial rail is a carousel: the group carries `aria-roledescription`, it takes
+the arrow keys, and only the medallion at the front is exposed to assistive
+technology — the others are `aria-hidden` and out of the tab order, so a
+screen reader is told which project is at the front rather than being left to
+read four of them at once. A polite status region announces the change.
 
 All body and label text clears WCAG AA (4.5:1) against both the page background
 and the `.panel` surface **in both themes** — see the contrast notes in
