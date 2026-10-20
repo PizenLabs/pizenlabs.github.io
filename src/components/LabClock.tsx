@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 
 /** HH:MM in UTC, e.g. "20:14". Locale fixed so the shape never varies. */
+const UTC_FMT = new Intl.DateTimeFormat('en-GB', {
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'UTC',
+});
+
 function utcNow(): string {
-  return new Intl.DateTimeFormat('en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'UTC',
-  }).format(new Date());
+  return UTC_FMT.format(new Date());
 }
 
 /**

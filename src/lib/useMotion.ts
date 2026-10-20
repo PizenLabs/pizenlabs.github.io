@@ -8,8 +8,9 @@ import { useEffect, useState } from 'react';
  *            into view, and the page parallaxes.
  * `calm`  — the visitor's system asked for less motion. The entrance
  *            motion is skipped: nothing slides, fades or parallaxes into
- *            place, and the two large continuous movements — the tape and
- *            the arc — are frozen.
+ *            place, the halo stills and the planet's turn slows to a
+ *            drift. The slow ambient layer (pi drift, planet turn,
+ *            backdrop, blink, pulse) keeps moving.
  *
  * Why this exists at all
  * ----------------------

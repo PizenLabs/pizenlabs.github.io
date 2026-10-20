@@ -884,73 +884,61 @@
 /* ============================================================================
    THE GLOBE
 
-   A rotating globe: the surface (continents/speckles) spins while the lighting
-   stays fixed, so it reads as a lit sphere rather than a flat disc.
+   A planet drawn as a globe of green dots joined by faint connecting
+   lines. The rotation is the canvas itself, so it reads in
+   every device and browser:
+
+     globe      a <canvas> painted by GlobeRocket.tsx: a sparse field of
+                small uniform dots spread over a sphere, linked to their
+                near neighbours, turning around the vertical axis. No disc,
+                no rim, no enclosing border — dots and links that swing
+                behind the sphere are culled, so the edge dots stand alone
+                and the whole Earth sweeps out of view around the open limb
+                and back in.
+
+   The planet's palette is professional in both themes: the canvas resolves
+   its greens from the `--forest-*` design tokens, which are deep greens
+   on light pages and soft neon greens on dark ones.
+   Only the canvas paints per frame — there is no CSS animation here.
    ========================================================================= */
 @layer components {
   .globe-scene {
     position: relative;
     width: 100%;
-    max-width: 22rem;
+    max-width: 28rem;
     aspect-ratio: 1 / 1;
     margin-inline: auto;
     perspective: 50rem;
   }
 
+  /* Contact shadow: a quiet ellipse grounding the planet. */
+  .globe-shadow {
+    position: absolute;
+    left: 26%;
+    right: 26%;
+    bottom: 3.5%;
+    height: 7%;
+    background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.32) 0%, transparent 70%);
+    filter: blur(8px);
+  }
+
   .globe {
     position: absolute;
-    inset: 12%;
+    inset: 2%;
     border-radius: 50%;
     overflow: hidden;
-    background: rgb(var(--ink-900));
-    box-shadow: 0 0 0 1px var(--line);
+    isolation: isolate;
+    /* No disc, no ring, no aura: the edge dots stand alone with nothing
+       enclosing them. Depth comes from the dots' own shading. */
+    background: transparent;
   }
 
-  .globe-surface {
+  .globe-net {
     position: absolute;
     inset: 0;
-    border-radius: 50%;
-    background:
-      radial-gradient(circle at 22% 30%, rgb(var(--forest-300) / 0.55) 0%, transparent 22%),
-      radial-gradient(circle at 38% 62%, rgb(var(--forest-400) / 0.45) 0%, transparent 26%),
-      radial-gradient(circle at 68% 38%, rgb(var(--forest-200) / 0.5) 0%, transparent 20%),
-      radial-gradient(circle at 74% 70%, rgb(var(--forest-500) / 0.4) 0%, transparent 24%),
-      radial-gradient(circle at 52% 46%, rgb(var(--forest-300) / 0.3) 0%, transparent 18%),
-      radial-gradient(circle at 30% 78%, rgb(var(--forest-400) / 0.35) 0%, transparent 16%),
-      rgb(var(--ink-800));
-    -webkit-animation: globe-spin 22s linear infinite;
-    animation: globe-spin 22s linear infinite;
-  }
-
-  .globe-shade {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background:
-      radial-gradient(circle at 30% 26%, rgb(var(--bone-50) / 0.16) 0%, transparent 40%),
-      radial-gradient(circle at 72% 74%, rgb(var(--ink-900) / 0.85) 0%, transparent 55%);
-    pointer-events: none;
-  }
-
-  .orbit {
-    position: absolute;
-    inset: 0;
-    transform-style: preserve-3d;
-    -webkit-animation: orbit-spin 8s linear infinite;
-    animation: orbit-spin 8s linear infinite;
-  }
-
-  .rocket-wrap {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) translateX(46%);
-    transform-style: preserve-3d;
-  }
-
-  .rocket-wrap svg {
-    -webkit-animation: rocket-counter 8s linear infinite;
-    animation: rocket-counter 8s linear infinite;
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 }
 
@@ -1194,29 +1182,6 @@
   }
 }
 
-@-webkit-keyframes globe-spin {
-  to { -webkit-transform: rotateY(360deg); transform: rotateY(360deg); }
-}
-@keyframes globe-spin {
-  to { transform: rotateY(360deg); }
-}
-
-@-webkit-keyframes orbit-spin {
-  from { -webkit-transform: rotateX(22deg) rotateY(0deg); transform: rotateX(22deg) rotateY(0deg); }
-  to { -webkit-transform: rotateX(22deg) rotateY(360deg); transform: rotateX(22deg) rotateY(360deg); }
-}
-@keyframes orbit-spin {
-  from { transform: rotateX(22deg) rotateY(0deg); }
-  to { transform: rotateX(22deg) rotateY(360deg); }
-}
-
-@-webkit-keyframes rocket-counter {
-  to { -webkit-transform: rotateY(-360deg); transform: rotateY(-360deg); }
-}
-@keyframes rocket-counter {
-  to { transform: rotateY(-360deg); }
-}
-
 @keyframes pi-scroll {
   from {
     transform: translate3d(0, 0, 0);
@@ -1270,6 +1235,12 @@
     height: min(560px, 130vw);
     margin-left: min(-280px, -65vw);
   }
+  /* Same trade on the digit tape: rows d/e are the dimmest pair, and on a
+     390px viewport five overlapping compositor textures cost more than they
+     show. Three rows keep the texture; phones hold ~40% less layer memory. */
+  .pi-row:nth-child(n + 4) {
+    display: none;
+  }
 }
 
 /* Background tabs: freeze the ambient drift so an idle page holds no
@@ -1277,6 +1248,14 @@
 .backdrop[data-paused='true'] .aurora-a,
 .backdrop[data-paused='true'] .aurora-b,
 .backdrop[data-paused='true'] .signal-dot {
+  -webkit-animation-play-state: paused;
+  animation-play-state: paused;
+}
+
+/* The tape of digits pauses with the tab, like the backdrop above —
+   an idle background tab holds no compositor work. Toggled by PiDigits'
+   visibility listener. */
+.pi-layer[data-paused='true'] .pi-row {
   -webkit-animation-play-state: paused;
   animation-play-state: paused;
 }
@@ -1290,11 +1269,12 @@
              dial's sweep turns, sections reveal as they scroll into view, and
              the layers parallax.
      calm  — the visitor's system asked for less motion. The entrance motion
-             is skipped (nothing slides, fades or parallaxes into place) and
-             the two large, continuous movements are frozen: the tape of
-             digits and the arc running round the medallion. The slow
-             background drift and all hover feedback stay, because a page
-             with no motion at all reads as broken rather than as "reduced".
+             is skipped (nothing slides, fades or parallaxes into place),
+             the halo stills, and the planet's turn slows to a drift. The
+             slow ambient layer keeps moving — the pi drift, the planet's
+             circular turn, the background drift — and all hover feedback
+             stays, because a page with no motion at all reads as broken
+             rather than as "reduced".
 
    The attribute is written by the bootstrap script in index.html before the
    first paint, so the page never starts in one mode and settles into another,
@@ -1335,18 +1315,6 @@ html[data-motion='calm'] :is(.reveal, .reveal-shift, .line-mask > span) {
    be set by hand. */
 html[data-motion='calm'] .rule-grow {
   transform: scaleX(1) !important;
-  animation: none !important;
-}
-
-/* The two continuous movements: the tape of digits crossing the screen, and
-   the arc running round the medallion. Both are large and both are endless,
-   which is exactly what `prefers-reduced-motion` is about. */
-html[data-motion='calm'] .globe,
-html[data-motion='calm'] .orbit {
-  animation: none !important;
-}
-
-html[data-motion='calm'] .pi-row {
   animation: none !important;
 }
 

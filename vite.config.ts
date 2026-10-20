@@ -39,6 +39,10 @@ export default defineConfig({
         // hashed entry chunk small, so repeat visits re-download only the app.
         manualChunks(id) {
           if (id.includes('node_modules/react')) return 'react-vendor';
+          // lucide-react is ~2/3 of the non-React bundle and changes only when
+          // an icon is added. Isolating it keeps the app chunk (the one that
+          // changes every deploy) small and long-term cacheable.
+          if (id.includes('node_modules/lucide-react')) return 'icons';
         },
       },
     },

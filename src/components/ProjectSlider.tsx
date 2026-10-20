@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight } from '@/lib/icons';
 import { PROJECTS, type Project } from '@/lib/content';
+import { useMotion } from '@/lib/useMotion';
 
 /**
  * The hero's current-projects wheel: a vertical cylinder of project cards that
@@ -25,6 +26,30 @@ export default function ProjectSlider() {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const { mode } = useMotion();
+
+  // The spin is pure ambient motion: it must hold no CPU while it cannot be
+  // seen (hidden tab, scrolled out of view) and must not run at all when the
+  // visitor asked for less motion. Without this the rAF loop rewrote `--pos`
+  // 60x/sec forever — including in a background tab on a phone.
+  const [tabHidden, setTabHidden] = useState(() => document.hidden);
+  const [onScreen, setOnScreen] = useState(true);
+
+  useEffect(() => {
+    const onVisibility = () => setTabHidden(document.hidden);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), {
+      threshold: 0.02,
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const mod = useCallback((n: number) => ((n % count) + count) % count, [count]);
 
@@ -66,9 +91,11 @@ export default function ProjectSlider() {
     [activeIndex, mod, snapTo]
   );
 
-  // Continuous spin.
+  // Continuous spin. Gated on visibility, on-screen presence, hover/manual
+  // pause, and motion mode — any one of them stops the loop entirely, so an
+  // idle or hidden wheel holds no rAF, no style recalc, no React work.
   useEffect(() => {
-    if (count <= 1 || paused) return;
+    if (count <= 1 || paused || tabHidden || !onScreen || mode !== 'full') return;
     lastTimeRef.current = null;
     const loop = (time: number) => {
       if (lastTimeRef.current === null) lastTimeRef.current = time;
@@ -90,7 +117,7 @@ export default function ProjectSlider() {
       rafRef.current = null;
       lastTimeRef.current = null;
     };
-  }, [count, mod, paused]);
+  }, [count, mod, paused, tabHidden, onScreen, mode]);
 
   // Pause/resume on hover.
   const handleEnter = () => {

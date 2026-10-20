@@ -305,7 +305,7 @@ fired, so the browser stops doing work as soon as the page settles.
 | Mode | What moves |
 | --- | --- |
 | `full` | Everything: the tape of digits scrolls, the backdrop drifts, the dial's arc turns, sections reveal as they scroll into view, the layers parallax. |
-| `calm` | The slow, harmless layer only — the drifting backdrop, the blinking caret, the pulsing signal dot, hover feedback. The entrance motion is skipped, and the two large continuous movements (the tape, the arc) are frozen. |
+| `calm` | The slow, harmless layer only — the drifting backdrop, the blinking caret, the pulsing signal dot, hover feedback — plus the slowest loops, the pi drift and the planet's turn. The entrance motion is skipped, the halo stills, and the planet's turn slows to a drift. |
 
 The mode is written by the bootstrap script in `index.html` before the first
 paint, so the page never starts in one mode and settles into another, and
