@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PI_HEAD, piChunk } from '@/lib/pi';
 
 /**
@@ -29,10 +29,11 @@ import { PI_HEAD, piChunk } from '@/lib/pi';
  * Visibility
  * ----------
  * The animation is paused while the tab is hidden — an idle background tab
- * should hold no compositor work — and it is frozen outright in the site's
+ * should hold no compositor work. It keeps drifting in the site's
  * `calm` motion mode, which is what a visitor with `prefers-reduced-motion`
- * gets. There is no toggle for it: the layer is part of the page, in the
- * same way the type is.
+ * gets: a full crossing takes minutes, so it stays ambient, not motion
+ * that troubles. There is no toggle for it: the layer is part of the page,
+ * in the same way the type is.
  */
 const ROWS = [
   // top, length, offset into the tape, seconds per lap, direction, opacity
@@ -52,13 +53,22 @@ export default function PiDigits() {
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, []);
 
+  // Built once: toggling `paused` re-renders, and without this every toggle
+  // would rebuild ~3.2k chars of tape via piChunk for no reason.
+  const texts = useMemo(
+    () =>
+      ROWS.map((row) =>
+        row.id === 'a' ? `${PI_HEAD}${piChunk(row.offset, row.length)}` : piChunk(row.offset, row.length),
+      ),
+    []
+  );
+
   return (
     <div className="pi-layer" aria-hidden="true" data-paused={paused}>
-      {ROWS.map((row) => {
+      {ROWS.map((row, i) => {
         // The first row starts at the decimal point; the rest are pure
         // digits, so the tape reads as a number that continues.
-        const text =
-          row.id === 'a' ? `${PI_HEAD}${piChunk(row.offset, row.length)}` : piChunk(row.offset, row.length);
+        const text = texts[i];
 
         return (
           <div
