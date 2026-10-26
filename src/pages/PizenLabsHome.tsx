@@ -1,9 +1,9 @@
 import { ArrowRight, ArrowUpRight, Blocks, Bluesky, Eye, GitBranch, Linkedin, Mail, Terminal } from '@/lib/icons';
-import { ARTICLES, ARTICLES_PATH, BLUESKY_HANDLE, BLUESKY_URL, CONTACT_EMAIL, GITHUB_URL, LINKEDIN_URL, PRINCIPLES, PROJECTS } from '@/lib/content';
+import { ARTICLES, ARTICLES_PATH, BLUESKY_HANDLE, BLUESKY_URL, CONTACT_EMAIL, GITHUB_URL, LINKEDIN_URL, PRINCIPLES } from '@/lib/content';
 import ArticleCard from '@/components/ArticleCard';
 import CopyEmail from '@/components/CopyEmail';
 import PageShell from '@/components/PageShell';
-import ProjectRow from '@/components/ProjectRow';
+import ProjectCarousel from '@/components/ProjectCarousel';
 import GlobeRocket from '@/components/GlobeRocket';
 import SectionLabel from '@/components/SectionLabel';
 
@@ -30,7 +30,7 @@ const HEADLINE = [
 /** Lab ledger: the dossier strip under the hero. Not marketing stats — the
     lab's current state, stated plainly. */
 const LEDGER = [
-  { k: 'Systems in flight', v: '02' },
+  { k: 'Systems in flight', v: '03' },
   { k: 'Operating principles', v: '04' },
   { k: 'Source readable', v: '100%' },
 ] as const;
@@ -214,14 +214,15 @@ export default function PizenLabsHome() {
       </section>
 
       {/* ── 03 / SUB-PROJECTS ───────────────────────────────────────────── */}
-      {/* The hero shows the projects as a compact index; this is the same list,
-          them, written out. It is below the fold on purpose — the hero is
-          the shop window, and this is the catalogue. */}
+      {/* The catalogue as a three-card carousel: one project in focus, its
+          neighbours held at the edges. Nothing moves until the visitor
+          presses an arrow, a dot, or swipes. It is below the fold on
+          purpose — the hero is the shop window, and this is the catalogue. */}
       <section id="work" className="rule-t">
         <div className="container-x section-y">
           <SectionLabel index="03" title="Sub-projects" className="mb-12 sm:mb-16" />
 
-          <div className="reveal mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="reveal mb-8 flex flex-col gap-4 sm:mb-9 sm:flex-row sm:items-end sm:justify-between">
             <h2 className="font-sans text-2xl font-medium tracking-tight text-bone-50 sm:text-3xl">
               What the lab is building
             </h2>
@@ -230,10 +231,8 @@ export default function PizenLabsHome() {
             </p>
           </div>
 
-          <div className="border-b border-ink-500/50">
-            {PROJECTS.filter((project) => !project.hidden).map((project, i) => (
-              <ProjectRow key={project.name} project={project} index={i} />
-            ))}
+          <div className="reveal" style={{ ['--reveal-i' as string]: 1 }}>
+            <ProjectCarousel />
           </div>
         </div>
       </section>

@@ -25,6 +25,13 @@ export const PROJECTS: Project[] = [
     hidden: true,
   },
   {
+    name: 'gry',
+    href: 'https://github.com/PizenLabs/gry',
+    summary: 'Local-first code intelligence for AI agents.',
+    meta: 'github.com/PizenLabs/gry',
+    kind: 'Open source',
+  },
+  {
     name: 'lynx',
     href: 'https://github.com/PizenLabs/lynx',
     summary:
@@ -100,6 +107,7 @@ export const ARTICLES: Article[] = [
         type: 'list',
         items: [
           '**izen** — an operator for AI-assisted work. AI amplifies human judgment; the operator stays in control of what the system is allowed to do. [Open it](https://pizenlabs.github.io/izen314/)',
+          '**gry** — local-first code intelligence for AI agents. [Read the source](https://github.com/PizenLabs/gry)',
           '**lynx** — symbol-first repository discovery for AI-native developer tooling. [Read the source](https://github.com/PizenLabs/lynx)',
         ],
       },

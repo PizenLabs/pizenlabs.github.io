@@ -882,6 +882,250 @@
 }
 
 /* ============================================================================
+   THE PROJECT CAROUSEL
+
+   Three cards sit on one track: the centre card at full size and full
+   opacity, its two neighbours scaled back and dimmed. A step slides the
+   track exactly one card, then reindexes it by one copy of the catalogue
+   with transitions off. Because the copies are identical, the reset frame
+   is pixel-identical to the frame before it, so the sequence can rotate in
+   either direction forever with only three copies in the DOM.
+
+   Nothing here animates on its own: the only transitions run while the
+   visitor is stepping. All movement is transform and opacity, so the stage
+   never triggers layout or paint on the neighbouring sections.
+   ========================================================================= */
+@layer components {
+  .project-carousel {
+    --pc-card: clamp(14.5rem, 64vw, 18rem);
+    --pc-gap: clamp(0.75rem, 1.6vw, 1.25rem);
+    --pc-pitch: calc(var(--pc-card) + var(--pc-gap));
+    --pc-card-h: clamp(17.5rem, 27vw, 21rem);
+    --pc-dur: 720ms;
+    --pc-ease-slide: cubic-bezier(0.65, 0, 0.35, 1);
+    --pc-ease-scale: cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .project-carousel {
+      --pc-card: clamp(15.5rem, 38vw, 18rem);
+    }
+  }
+
+  .project-carousel-stage {
+    position: relative;
+    /* Breathing room so the centre-card zoom (scale 1.02 + pop + shadow)
+       never clips at the top/bottom or side edges on hover. The extra
+       28px is inside the stage so overflow:hidden still hides far cards
+       without clipping the active card's scaled edge. */
+    height: calc(var(--pc-card-h) + 28px);
+    padding-block: 14px;
+    padding-inline: 6px;
+    margin-inline: -6px;
+    overflow: hidden;
+    touch-action: pan-y;
+    contain: layout style;
+  }
+
+  .project-carousel-track {
+    position: absolute;
+    top: 50%;
+    left: calc(50% - var(--pc-card) / 2);
+    display: flex;
+    width: max-content;
+    gap: var(--pc-gap);
+    transform: translate3d(calc(var(--pc-slot) * var(--pc-pitch) * -1), -50%, 0);
+    transition-property: transform;
+    transition-duration: var(--pc-dur);
+    transition-timing-function: var(--pc-ease-slide);
+  }
+
+  /* Only promote to its own layer while panning — idle carousel holds
+     no extra compositor memory. */
+  .project-carousel.is-sliding .project-carousel-track {
+    will-change: transform;
+  }
+
+  .project-carousel-track.is-resetting {
+    transition: none;
+  }
+
+  /* Each card animates smoothly: the centre card scales small → large
+     with a gentle spring overshoot while sliding, side cards scale down
+     and fade. Shadow also lerps so depth feels continuous. */
+  .project-carousel-card {
+    display: flex;
+    width: var(--pc-card);
+    height: var(--pc-card-h);
+    flex: none;
+    flex-direction: column;
+    padding: clamp(1.125rem, 2.2vw, 1.5rem);
+    overflow: hidden;
+    text-decoration: none;
+    opacity: var(--pc-fade, 1);
+    z-index: var(--pc-z, 1);
+    transform: translate3d(0, var(--pc-shift, 0), 0) scale(var(--pc-scale, 1));
+    transform-origin: 50% 50%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* No persistent will-change/filter — promoted only while sliding
+       to avoid holding 9 GPU layers idle. */
+    transition-property: transform, opacity, border-color, box-shadow;
+    transition-duration: var(--pc-dur), var(--pc-dur), var(--dur-base), var(--pc-dur);
+    transition-timing-function: var(--pc-ease-scale), var(--ease-out-soft), var(--ease-out-soft), var(--ease-out-soft);
+    contain: layout style;
+  }
+
+  /* Promote only the three on-screen cards while the carousel is
+     actually moving — cuts idle compositor memory from 9 layers to 0. */
+  .project-carousel.is-sliding .project-carousel-card[data-visible='true'] {
+    will-change: transform, opacity;
+  }
+
+  .project-carousel-card.is-resetting,
+  .project-carousel-track.is-resetting .project-carousel-card {
+    transition: none !important;
+  }
+
+  @keyframes pc-pop {
+    0% {
+      transform: translate3d(0, 0.2rem, 0) scale(0.88);
+    }
+    70% {
+      transform: translate3d(0, 0, 0) scale(1.02);
+    }
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+
+  .project-carousel-card:not([data-visible='true']) {
+    pointer-events: none;
+    visibility: hidden;
+    /* Keep off-screen copies out of the render tree entirely — they are
+       only needed for the seamless wrap and cost paint/memory otherwise. */
+    content-visibility: hidden;
+    contain-intrinsic-size: 288px 336px;
+  }
+
+  .project-carousel-card[data-active='true'] {
+    border-color: var(--line-strong);
+    box-shadow:
+      0 8px 24px rgb(0 0 0 / 0.12),
+      0 1px 0 rgb(255 255 255 / 0.04) inset;
+    /* Extra pop on arrival: small → slightly over → rest, layered on top
+       of the transition so the centre card feels like it zooms into focus. */
+    animation: pc-pop var(--pc-dur) var(--pc-ease-scale) both;
+  }
+
+  .project-carousel-card[data-active='false'],
+  .project-carousel-card:not([data-active='true']) {
+    box-shadow: none;
+  }
+
+  /* The centre card comes forward to meet the pointer — a small confirmation
+     that this is the one the catalogue is focused on. */
+  @media (hover: hover) {
+    .project-carousel-card[data-active='true']:hover {
+      transform: translate3d(0, var(--pc-shift, 0), 0) scale(1.02);
+    }
+  }
+
+  .project-carousel-name {
+    margin-top: clamp(1rem, 2vw, 1.35rem);
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-size: clamp(1.5rem, 2.4vw, 1.85rem);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: rgb(var(--bone-50));
+    transition-property: color;
+    transition-duration: var(--dur-base);
+    transition-timing-function: var(--ease-out-soft);
+  }
+
+  .project-carousel-card:hover .project-carousel-name {
+    color: rgb(var(--forest-200));
+  }
+
+  .project-carousel-summary {
+    margin-top: 0.65rem;
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: rgb(var(--bone-300));
+  }
+
+  .project-carousel-meta {
+    margin-top: auto;
+    padding-top: 1.25rem;
+    overflow-wrap: anywhere;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: rgb(var(--bone-500));
+  }
+
+  .project-carousel-open {
+    margin-top: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgb(var(--bone-400));
+    transition-property: color;
+    transition-duration: var(--dur-base);
+    transition-timing-function: var(--ease-out-soft);
+  }
+
+  .project-carousel-card:hover .project-carousel-open {
+    color: rgb(var(--forest-200));
+  }
+
+  /* Round arrows sit over the stage's outer margins, not over the cards. */
+  .project-carousel-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 5;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-top: -1.375rem;
+    border-color: var(--line-strong);
+    background: rgb(var(--ink-900) / 0.72);
+    box-shadow: 0 10px 30px -18px rgb(0 0 0 / 0.65);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  .project-carousel-arrow[data-dir='prev'] {
+    left: clamp(0rem, 1vw, 0.75rem);
+  }
+
+  .project-carousel-arrow[data-dir='next'] {
+    right: clamp(0rem, 1vw, 0.75rem);
+  }
+
+  /* The controls never travel with the cards. The row keeps a fixed height,
+     so a changing caption cannot move the stage. */
+  .project-carousel-controls {
+    display: flex;
+    min-height: 2.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    margin-top: 1.25rem;
+  }
+}
+
+/* ============================================================================
    THE GLOBE
 
    A planet drawn as a globe of green dots joined by faint connecting
@@ -1191,8 +1435,6 @@
   }
 }
 
-
-
 @keyframes rule-grow {
   to {
     transform: scaleX(1);
@@ -1315,6 +1557,17 @@ html[data-motion='calm'] :is(.reveal, .reveal-shift, .line-mask > span) {
    be set by hand. */
 html[data-motion='calm'] .rule-grow {
   transform: scaleX(1) !important;
+  animation: none !important;
+}
+
+/* Carousel in calm mode keeps panning + zooming but without the spring
+   overshoot — smooth and gentle so reduced-motion still reads as motion
+   rather than a snap. */
+html[data-motion='calm'] .project-carousel-track {
+  transition-timing-function: var(--ease-out-soft) !important;
+}
+html[data-motion='calm'] .project-carousel-card {
+  transition-timing-function: var(--ease-out-soft), var(--ease-out-soft), var(--ease-out-soft), var(--ease-out-soft) !important;
   animation: none !important;
 }
 
